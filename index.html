@@ -20,8 +20,6 @@
   body{color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(14px,3vw,40px) 80px}
   a{color:inherit}
-
-  /* header */
   .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 2px 10px}
   .brand{display:flex;align-items:center;gap:11px}
   .tally{width:12px;height:12px;border-radius:50%;background:var(--red);animation:pulse 2s infinite;flex:none}
@@ -31,10 +29,8 @@
   .brand span{display:block;color:var(--ink-faint);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
   .clock{font-family:var(--mono);font-size:11px;color:var(--ink-dim);text-align:right;line-height:1.5}
   .clock b{color:var(--amber)}
-
-  /* TABS */
   .tabs{position:sticky;top:0;z-index:40;background:rgba(11,14,19,.96);backdrop-filter:blur(12px);
-    border-bottom:1px solid var(--line);display:flex;gap:6px;padding:9px 0;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    border-bottom:1px solid var(--line);display:flex;gap:6px;padding:9px 0;margin-bottom:20px;overflow-x:auto}
   .tabbtn{flex:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink-dim);
     border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:10px;transition:.14s;white-space:nowrap;display:flex;align-items:center;gap:7px}
   .tabbtn:hover{color:var(--ink)}
@@ -42,17 +38,13 @@
   .tabbtn .cnt{font-family:var(--mono);font-size:10px;color:var(--ink-faint);background:rgba(255,255,255,.05);padding:1px 6px;border-radius:20px}
   .tabbtn.active{color:#fff;border-color:var(--accent,var(--amber));background:color-mix(in srgb,var(--accent,var(--amber)) 16%,var(--panel))}
   .tabbtn.active .cnt{color:var(--ink)}
-
   .panel{display:none}
   .panel.active{display:block;animation:fade .2s ease}
   @keyframes fade{from{opacity:.4}to{opacity:1}}
-
-  /* OVERVIEW */
   .sop{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:16px 18px;margin:0 0 16px}
   .sop h1{margin:0 0 7px;font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);font-family:var(--mono)}
   .sop p{margin:0;font-size:15px;line-height:1.62;color:var(--ink-dim)}
   .sop b{color:var(--ink)}
-
   .blocktitle{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:22px 2px 10px}
   .hot{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
   .hotcard{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-left:4px solid var(--e);border-radius:12px;
@@ -63,8 +55,6 @@
   .hotcard .num .l{font-family:var(--mono);font-size:8px;letter-spacing:.06em;color:var(--ink-faint);text-transform:uppercase;margin-top:3px}
   .hotcard .t{font-size:12.5px;line-height:1.35}
   .hotcard .t b{color:var(--ink-faint);font-family:var(--mono);font-size:10px;font-weight:600;display:block;margin-top:4px}
-
-  /* topic map */
   .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
   .mapcard{cursor:pointer;text-align:left;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:13px;
     background:var(--panel);padding:14px 15px;transition:.14s;color:inherit;font-family:var(--sans)}
@@ -74,7 +64,6 @@
   .mapcard .cnt{font-family:var(--mono);font-size:11px;color:var(--ink-faint);white-space:nowrap}
   .mapcard p{margin:0;font-size:12.5px;color:var(--ink-dim);line-height:1.45}
   .mapcard .go{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:9px;display:inline-block}
-
   .guide{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;margin:22px 0 0}
   .guide h3{margin:0 0 11px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-family:var(--mono)}
   .grow{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
@@ -82,8 +71,6 @@
   .gitem .ic{font-size:17px;flex:none}
   .gitem b{color:var(--ink);font-size:13px}
   .gitem p{margin:2px 0 0;color:var(--ink-dim);font-size:12px;line-height:1.4}
-
-  /* TOPIC PANELS */
   .thead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
   .thead h2{margin:0;font-size:24px;border-left:5px solid var(--accent);padding-left:12px}
   .thead .badge{font-family:var(--mono);font-size:11px;color:var(--ink-dim);border:1px solid var(--line);border-radius:20px;padding:3px 10px}
@@ -93,7 +80,6 @@
     border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);border-radius:11px;padding:10px 14px;margin:0 0 18px;max-width:90ch}
   .angle .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;flex:none;padding-top:2px}
   .angle p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
-
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;align-items:start}
   .card{border:1px solid var(--line);border-left:4px solid var(--e,var(--line));border-radius:13px;background:var(--panel);
     padding:11px 12px;display:flex;flex-direction:column;gap:9px}
@@ -108,7 +94,6 @@
   .src{font-size:11px;font-weight:600;white-space:nowrap}
   .src.ok{color:#7fe0ac} .src.official{color:#8cc6ff} .src.warn{color:#ff8f8f} .src.osint{color:#ffcf8a} .src.state{color:#ff9f7a} .src.op{color:var(--ink-dim)}
   .card .twitter-tweet{margin:0 !important}
-
   footer{margin-top:36px;border-top:1px solid var(--line);padding-top:15px;color:var(--ink-faint);font-size:12px;line-height:1.6}
   footer b{color:var(--ink-dim)}
 </style>
@@ -122,44 +107,40 @@
     <div class="clock">Updated <b>just now</b><br>refreshes every 15 min during shows</div>
   </div>
 
-  <!-- TABS -->
   <div class="tabs" id="tabs">
     <button class="tabbtn active" data-tab="overview" style="--accent:var(--amber)"><span class="dot"></span>Overview</button>
-    <button class="tabbtn" data-tab="hormuz" style="--accent:var(--blue)"><span class="dot"></span>Hormuz <span class="cnt">3</span></button>
-    <button class="tabbtn" data-tab="strikes" style="--accent:var(--red)"><span class="dot"></span>Strikes <span class="cnt">3</span></button>
+    <button class="tabbtn" data-tab="hormuz" style="--accent:var(--blue)"><span class="dot"></span>Hormuz <span class="cnt">9</span></button>
+    <button class="tabbtn" data-tab="strikes" style="--accent:var(--red)"><span class="dot"></span>Strikes <span class="cnt">6</span></button>
     <button class="tabbtn" data-tab="senate" style="--accent:var(--green)"><span class="dot"></span>Senate <span class="cnt">5</span></button>
-    <button class="tabbtn" data-tab="regime" style="--accent:var(--amber)"><span class="dot"></span>Regime <span class="cnt">2</span></button>
-    <button class="tabbtn" data-tab="netanyahu" style="--accent:var(--violet)"><span class="dot"></span>Netanyahu <span class="cnt">2</span></button>
+    <button class="tabbtn" data-tab="regime" style="--accent:var(--amber)"><span class="dot"></span>Regime <span class="cnt">3</span></button>
+    <button class="tabbtn" data-tab="netanyahu" style="--accent:var(--violet)"><span class="dot"></span>Netanyahu <span class="cnt">3</span></button>
     <button class="tabbtn" data-tab="mamdani" style="--accent:var(--pink)"><span class="dot"></span>Mamdani <span class="cnt">7</span></button>
   </div>
 
-  <!-- ===== OVERVIEW ===== -->
+  <!-- OVERVIEW -->
   <div class="panel active" id="panel-overview">
     <div class="sop">
       <h1>State of play — what's happening now</h1>
-      <p>The US–Iran war is in ~its 11th night and escalating. The fight centers on the <b>Strait of Hormuz</b> — Iran claims control, CENTCOM denies it, Trump threatened Iran's <b>bridges and power plants</b>. Strikes widened to <b>IRGC bases and water plants</b>; oil is up an 11th straight night. Hegseth is grilled in the Senate over an $87.6B ask. The two biggest viral moments now — Mamdani's "war criminal" clips — are both things <b>you'll want to argue against</b>.</p>
+      <p>The US–Iran war is in ~its 11th night and escalating. The fight centers on the <b>Strait of Hormuz</b> — Iran claims control, CENTCOM denies it, Trump threatened Iran's <b>bridges and power plants</b> for any ship attack. Strikes widened to <b>IRGC bases and water plants</b>; oil is up an 11th straight night. Hegseth is grilled in the Senate over an $87.6B ask. The two biggest viral moments now — Mamdani's "war criminal" clips — are both things <b>you'll want to argue against</b>.</p>
     </div>
-
     <div class="blocktitle">🔥 Biggest stories on X right now</div>
     <div class="hot">
       <a class="hotcard" style="--e:var(--rage)" href="https://x.com/NYCMayor/status/2079718073058091261" target="_blank" rel="noopener">
         <span class="num"><span class="v">99</span><span class="l">viral</span></span><span class="t">🟥 Mamdani: "Netanyahu is a war criminal"<b>ARGUE AGAINST · 59M views</b></span></a>
       <a class="hotcard" style="--e:var(--rage)" href="https://x.com/PopBase/status/2079802948926791774" target="_blank" rel="noopener">
         <span class="num"><span class="v">92</span><span class="l">viral</span></span><span class="t">🟥 Mamdani urges feds to arrest Netanyahu<b>ARGUE AGAINST · 1.1M views</b></span></a>
-      <a class="hotcard" style="--e:var(--neu)" href="https://x.com/atrupar/status/2079663803935953321" target="_blank" rel="noopener">
-        <span class="num"><span class="v">80</span><span class="l">viral</span></span><span class="t">Sen. Kennedy: "We need straight answers!"<b>NEUTRAL · 273K views</b></span></a>
+      <a class="hotcard" style="--e:var(--rage)" href="https://x.com/IRGC_Press/status/2079690672999948420" target="_blank" rel="noopener">
+        <span class="num"><span class="v">78</span><span class="l">viral</span></span><span class="t">🟥 IRGC brags of "assassinations inside Israel"<b>REGIME PROPAGANDA · 379K views</b></span></a>
     </div>
-
     <div class="blocktitle">📁 The 6 topics — tap one to open it</div>
     <div class="map">
-      <button class="mapcard gotab" data-tab="hormuz" style="--accent:var(--blue)"><div class="mh"><h3>Naval War &amp; Hormuz</h3><span class="cnt">3 clips</span></div><p>Who controls the strait — CENTCOM vs. Iran, Trump's threats, oil.</p><span class="go">Open →</span></button>
-      <button class="mapcard gotab" data-tab="strikes" style="--accent:var(--red)"><div class="mh"><h3>Strikes &amp; Escalation</h3><span class="cnt">3 clips</span></div><p>IRGC bases hit, water-plant strikes, and the viral disinfo to avoid.</p><span class="go">Open →</span></button>
+      <button class="mapcard gotab" data-tab="hormuz" style="--accent:var(--blue)"><div class="mh"><h3>Naval War &amp; Hormuz</h3><span class="cnt">9 clips</span></div><p>Who controls the strait — CENTCOM vs. Iran, Rubio, ship traffic, oil.</p><span class="go">Open →</span></button>
+      <button class="mapcard gotab" data-tab="strikes" style="--accent:var(--red)"><div class="mh"><h3>Strikes &amp; Escalation</h3><span class="cnt">6 clips</span></div><p>IRGC bases hit, US bombers, and the viral disinfo to avoid.</p><span class="go">Open →</span></button>
       <button class="mapcard gotab" data-tab="senate" style="--accent:var(--green)"><div class="mh"><h3>The Senate Reckoning</h3><span class="cnt">5 clips</span></div><p>Hegseth grilled on the $87.6B ask; the "war crimes" framing to rebut.</p><span class="go">Open →</span></button>
-      <button class="mapcard gotab" data-tab="regime" style="--accent:var(--amber)"><div class="mh"><h3>Regime &amp; Opposition</h3><span class="cnt">2 clips</span></div><p>Regime propaganda vs. Pahlavi's opposition message. Good-vs-evil.</p><span class="go">Open →</span></button>
-      <button class="mapcard gotab" data-tab="netanyahu" style="--accent:var(--violet)"><div class="mh"><h3>Netanyahu &amp; the Nuke Claim</h3><span class="cnt">2 clips</span></div><p>The "30 years crying nuke" attack line — bait to undermine the case.</p><span class="go">Open →</span></button>
+      <button class="mapcard gotab" data-tab="regime" style="--accent:var(--amber)"><div class="mh"><h3>Regime &amp; Opposition</h3><span class="cnt">3 clips</span></div><p>Regime/IRGC propaganda vs. Pahlavi's opposition message.</p><span class="go">Open →</span></button>
+      <button class="mapcard gotab" data-tab="netanyahu" style="--accent:var(--violet)"><div class="mh"><h3>Netanyahu &amp; the Nuke Claim</h3><span class="cnt">3 clips</span></div><p>The "30 years crying nuke" attack line — bait to undermine the case.</p><span class="go">Open →</span></button>
       <button class="mapcard gotab" data-tab="mamdani" style="--accent:var(--pink)"><div class="mh"><h3>Mamdani &amp; the ICC</h3><span class="cnt">7 clips</span></div><p>The biggest story: arrest fight, Danon &amp; Trump's pushback. Your lane.</p><span class="go">Open →</span></button>
     </div>
-
     <div class="guide">
       <h3>How to read each clip</h3>
       <div class="grow">
@@ -170,26 +151,38 @@
     </div>
   </div>
 
-  <!-- ===== HORMUZ ===== -->
+  <!-- HORMUZ (9) -->
   <div class="panel" id="panel-hormuz" style="--accent:var(--blue)">
-    <div class="thead"><h2>Naval War &amp; the Strait of Hormuz</h2><span class="badge">3 clips</span></div>
-    <p class="summary">Iran claims it controls the strait; <b>CENTCOM issued a point-blank denial</b>. Trump threatened Iran's bridges and power plants, then said the US doesn't need the strait anyway.</p>
-    <div class="angle"><span class="tag">Your angle</span><p>Play CENTCOM's flat denial against the regime's claim, and flag Trump's contradiction — "we don't need it" while bombing to keep it open.</p></div>
+    <div class="thead"><h2>Naval War &amp; the Strait of Hormuz</h2><span class="badge">9 clips</span></div>
+    <p class="summary">Iran claims it controls the strait; <b>CENTCOM issued a point-blank denial</b>. Rubio is warning the world (and ASEAN) not to let Iran hold the chokepoint; Trump threatened Iran's bridges and power plants, then said the US doesn't need the strait anyway. Ship traffic is collapsing; oil keeps climbing.</p>
+    <div class="angle"><span class="tag">Your angle</span><p>Play CENTCOM's and Rubio's line against the regime's claim, and flag Trump's contradiction — "we don't need it" while bombing to keep it open. Watch the RT clips: that's the regime's framing to rebut.</p></div>
     <div class="cards">
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 55<small>/100</small></span><span class="src official">📊 Official</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/CENTCOM/status/2080019954192031917"></a></blockquote></div>
+      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 72<small>/100</small></span><span class="src ok">✅ Trusted</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/WatcherGuru/status/2079641410354254192"></a></blockquote></div>
       <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 70<small>/100</small></span><span class="src ok">✅ Trusted</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Acyn/status/2079653925494689988"></a></blockquote></div>
+      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 68<small>/100</small></span><span class="src ok">✅ Trusted (Reuters)</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Reuters/status/2079835084295664048"></a></blockquote></div>
+      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 55<small>/100</small></span><span class="src official">📊 Official</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/CENTCOM/status/2080019954192031917"></a></blockquote></div>
+      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 55<small>/100</small></span><span class="src ok">✅ Trusted (Reuters)</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Reuters/status/2079300310535676189"></a></blockquote></div>
+      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 40<small>/100</small></span><span class="src state">🏴 Russian state media</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RT_on_X/status/2079130996981604490"></a></blockquote></div>
+      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 38<small>/100</small></span><span class="src state">🏴 Russian state media</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RT_on_X/status/2079391279301935128"></a></blockquote></div>
+      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 30<small>/100</small></span><span class="src op">🗣️ Clip</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/factpostnews/status/2080026645155447000"></a></blockquote></div>
       <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 20<small>/100</small></span><span class="src official">📊 Markets</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/CHItrader/status/2080028591300260131"></a></blockquote></div>
     </div>
   </div>
 
-  <!-- ===== STRIKES ===== -->
+  <!-- STRIKES (6) -->
   <div class="panel" id="panel-strikes" style="--accent:var(--red)">
-    <div class="thead"><h2>US Strikes &amp; Escalation</h2><span class="badge">3 clips</span></div>
-    <p class="summary">The strike map keeps widening — ships, then IRGC bases, then water plants. The info war is just as hot: the biggest "battle damage" clips come from hype accounts with unconfirmed numbers.</p>
-    <div class="angle"><span class="tag">Your angle</span><p>Cheer the real hits on the IRGC, but separate them from the disinfo — the "1,800 missiles" clip is your-side sentiment on a fake account.</p></div>
+    <div class="thead"><h2>US Strikes &amp; Escalation</h2><span class="badge">6 clips</span></div>
+    <p class="summary">The strike map keeps widening — ships, then IRGC bases, then water plants, with fresh US bomber footage. The info war is just as hot: the biggest "battle damage" clips come from hype accounts with unconfirmed numbers.</p>
+    <div class="angle"><span class="tag">Your angle</span><p>Cheer the real hits on the IRGC, but separate them from the disinfo — the "1,800 missiles" clip is your-side sentiment on a fake account, and "100+ vaporized" is unconfirmed. Show the difference live.</p></div>
     <div class="cards">
       <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 90<small>/100</small></span><span class="src warn">⚠️ Don't trust — hype</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/usairforce_x/status/2079600043561263323"></a></blockquote></div>
@@ -197,10 +190,16 @@
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/WarHorizon/status/2079731568218685741"></a></blockquote></div>
       <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 55<small>/100</small></span><span class="src op">🗣️ Clip</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Osint613/status/2079930540832981436"></a></blockquote></div>
+      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 52<small>/100</small></span><span class="src osint">🟡 Unconfirmed — "100+ vaporized"</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/the_Atharva/status/2079421256810770804"></a></blockquote></div>
+      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 42<small>/100</small></span><span class="src op">🗣️ Pro-Israel</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/EYakoby/status/2079733944862269458"></a></blockquote></div>
+      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 30<small>/100</small></span><span class="src osint">🟡 OSINT</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/TheSDPadresFan/status/2079992035394883592"></a></blockquote></div>
     </div>
   </div>
 
-  <!-- ===== SENATE ===== -->
+  <!-- SENATE (5) -->
   <div class="panel" id="panel-senate" style="--accent:var(--green)">
     <div class="thead"><h2>The Senate Reckoning</h2><span class="badge">5 clips</span></div>
     <p class="summary">Hegseth asked for <b>$87.6B more</b> after admitting the war's cost $37.5B. Anti-war senators and protesters push the "US war crimes" framing — the narrative your show exists to rebut.</p>
@@ -219,12 +218,14 @@
     </div>
   </div>
 
-  <!-- ===== REGIME ===== -->
+  <!-- REGIME (3) -->
   <div class="panel" id="panel-regime" style="--accent:var(--amber)">
-    <div class="thead"><h2>Iran's Regime &amp; the Opposition</h2><span class="badge">2 clips</span></div>
-    <p class="summary">Two competing messages to Iranians. The <b>regime</b> broadcasts defiance via state media; the <b>opposition</b> (Reza Pahlavi) puts out its own appeals — this one aimed at Iranians in the south.</p>
-    <div class="angle"><span class="tag">Your angle</span><p>The cleanest good-vs-evil segment on the board: regime propaganda to tear apart, opposition to amplify.</p></div>
+    <div class="thead"><h2>Iran's Regime &amp; the Opposition</h2><span class="badge">3 clips</span></div>
+    <p class="summary">The regime and its IRGC are broadcasting defiance and bragging about operations (including claimed assassinations inside Israel). Against that, the <b>opposition</b> (Reza Pahlavi) is appealing directly to Iranians.</p>
+    <div class="angle"><span class="tag">Your angle</span><p>The cleanest good-vs-evil segment: regime/IRGC propaganda to tear apart, opposition to amplify. Flag Tasnim and IRGC_Press clearly as regime accounts.</p></div>
     <div class="cards">
+      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 78<small>/100</small></span><span class="src state">🏴 IRGC (regime) account</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/IRGC_Press/status/2079690672999948420"></a></blockquote></div>
       <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 54<small>/100</small></span><span class="src state">🏴 Regime propaganda</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Tasnimnews_EN/status/2079857470558830691"></a></blockquote></div>
       <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 20<small>/100</small></span><span class="src op">🗣️ Opposition</span></div>
@@ -232,20 +233,22 @@
     </div>
   </div>
 
-  <!-- ===== NETANYAHU ===== -->
+  <!-- NETANYAHU (3) -->
   <div class="panel" id="panel-netanyahu" style="--accent:var(--violet)">
-    <div class="thead"><h2>Netanyahu &amp; the "Days From a Nuke" Claim</h2><span class="badge">2 clips</span></div>
-    <p class="summary">Anti-war voices are resurfacing old clips of <b>Netanyahu predicting an imminent Iranian bomb</b> — going back 30 years — to discredit the case against the regime.</p>
+    <div class="thead"><h2>Netanyahu &amp; the "Days From a Nuke" Claim</h2><span class="badge">3 clips</span></div>
+    <p class="summary">Anti-war voices are resurfacing old clips of <b>Netanyahu predicting an imminent Iranian bomb</b> — going back 30 years — to discredit the case against the regime. Two different supercuts are circulating (4.3M and 136K views).</p>
     <div class="angle"><span class="tag">Your angle</span><p>Rebut the "boy who cried nuke" line: mocking Netanyahu doesn't make the regime any less dangerous. Bait to undermine pressure on the Islamic Republic.</p></div>
     <div class="cards">
       <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 45<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/OwenShroyer1776/status/2026811589391696344"></a></blockquote></div>
+      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 38<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/NotHoodlum/status/2051775322421420100"></a></blockquote></div>
       <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 30<small>/100</small></span><span class="src op">🗣️ Clip</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/HotSpotHotSpot/status/1916574896307712327"></a></blockquote></div>
     </div>
   </div>
 
-  <!-- ===== MAMDANI ===== -->
+  <!-- MAMDANI (7) -->
   <div class="panel" id="panel-mamdani" style="--accent:var(--pink)">
     <div class="thead"><h2>Mamdani, the ICC &amp; the Arrest Fight</h2><span class="badge">7 clips</span></div>
     <p class="summary">The war's biggest domestic story, and mostly argue-against fuel. Mayor <b>Mamdani</b> called Netanyahu a war criminal (59M views) and urged the feds to execute the ICC warrant. Trump shut it down; Israel's UN ambassador said <b>Mamdani</b> should be arrested.</p>
@@ -255,10 +258,10 @@
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/NYCMayor/status/2079718073058091261"></a></blockquote></div>
       <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 92<small>/100</small></span><span class="src ok">✅ Trusted</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/PopBase/status/2079802948926791774"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 70<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/emilykschrader/status/2079585430563958984"></a></blockquote></div>
       <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Aligns · toxic source</span><span class="vs">🔥 87<small>/100</small></span><span class="src op">🗣️ Handle with care</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/ImperiumFirst/status/2079811869427089484"></a></blockquote></div>
+      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 70<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
+        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/emilykschrader/status/2079585430563958984"></a></blockquote></div>
       <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 60<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Partisan_12/status/2079582249545318721"></a></blockquote></div>
       <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 40<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
