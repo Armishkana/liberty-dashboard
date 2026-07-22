@@ -18,53 +18,83 @@
   *{box-sizing:border-box}
   html,body{background:#0b0e13;margin:0;padding:0;min-height:100%}
   body{color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1320px;margin:0 auto;padding:0 clamp(14px,4vw,48px) 72px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(14px,3vw,40px) 80px}
+  a{color:inherit}
 
-  .bar{position:sticky;top:0;z-index:30;background:rgba(11,14,19,.95);backdrop-filter:blur(12px);
-    border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;
-    flex-wrap:wrap;padding:12px 2px;margin-bottom:4px}
+  /* header */
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 2px 10px}
   .brand{display:flex;align-items:center;gap:11px}
   .tally{width:12px;height:12px;border-radius:50%;background:var(--red);animation:pulse 2s infinite;flex:none}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,82,82,.55)}70%{box-shadow:0 0 0 11px rgba(255,82,82,0)}100%{box-shadow:0 0 0 0 rgba(255,82,82,0)}}
   @media (prefers-reduced-motion:reduce){.tally{animation:none}}
-  .brand b{font-size:16px}
+  .brand b{font-size:17px}
   .brand span{display:block;color:var(--ink-faint);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
   .clock{font-family:var(--mono);font-size:11px;color:var(--ink-dim);text-align:right;line-height:1.5}
   .clock b{color:var(--amber)}
 
-  .guide{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;margin:16px 0 6px}
-  .guide h3{margin:0 0 11px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-family:var(--mono)}
-  .grow{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
-  .gitem{display:flex;gap:10px;align-items:flex-start}
-  .gitem .ic{font-size:17px;flex:none}
-  .gitem b{color:var(--ink);font-size:13.5px}
-  .gitem p{margin:2px 0 0;color:var(--ink-dim);font-size:12.5px;line-height:1.45}
+  /* TABS */
+  .tabs{position:sticky;top:0;z-index:40;background:rgba(11,14,19,.96);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);display:flex;gap:6px;padding:9px 0;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tabbtn{flex:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink-dim);
+    border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:10px;transition:.14s;white-space:nowrap;display:flex;align-items:center;gap:7px}
+  .tabbtn:hover{color:var(--ink)}
+  .tabbtn .dot{width:8px;height:8px;border-radius:50%;background:var(--accent,var(--ink-faint))}
+  .tabbtn .cnt{font-family:var(--mono);font-size:10px;color:var(--ink-faint);background:rgba(255,255,255,.05);padding:1px 6px;border-radius:20px}
+  .tabbtn.active{color:#fff;border-color:var(--accent,var(--amber));background:color-mix(in srgb,var(--accent,var(--amber)) 16%,var(--panel))}
+  .tabbtn.active .cnt{color:var(--ink)}
 
-  .sop{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:16px 18px;margin:14px 0}
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:.4}to{opacity:1}}
+
+  /* OVERVIEW */
+  .sop{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:16px 18px;margin:0 0 16px}
   .sop h1{margin:0 0 7px;font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);font-family:var(--mono)}
-  .sop p{margin:0;font-size:14.5px;line-height:1.6;color:var(--ink-dim);max-width:96ch}
+  .sop p{margin:0;font-size:15px;line-height:1.62;color:var(--ink-dim)}
   .sop b{color:var(--ink)}
 
-  nav.topics{position:sticky;top:53px;z-index:20;background:rgba(11,14,19,.95);backdrop-filter:blur(12px);
-    display:flex;gap:7px;flex-wrap:wrap;padding:10px 0;margin:14px 0 4px;border-bottom:1px solid var(--line)}
-  nav.topics a{text-decoration:none;font-family:var(--mono);font-size:11px;color:var(--ink-dim);
-    border:1px solid var(--line);background:var(--panel);padding:6px 11px;border-radius:999px;transition:.14s;white-space:nowrap}
-  nav.topics a:hover{color:var(--ink);border-color:var(--accent)}
-  nav.topics a .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;background:var(--accent)}
+  .blocktitle{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:22px 2px 10px}
+  .hot{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+  .hotcard{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-left:4px solid var(--e);border-radius:12px;
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));padding:12px 13px;text-decoration:none;color:inherit;transition:.14s}
+  .hotcard:hover{border-color:var(--red)}
+  .hotcard .num{text-align:center;flex:none}
+  .hotcard .num .v{font-family:var(--mono);font-weight:700;font-size:23px;color:var(--red);line-height:1}
+  .hotcard .num .l{font-family:var(--mono);font-size:8px;letter-spacing:.06em;color:var(--ink-faint);text-transform:uppercase;margin-top:3px}
+  .hotcard .t{font-size:12.5px;line-height:1.35}
+  .hotcard .t b{color:var(--ink-faint);font-family:var(--mono);font-size:10px;font-weight:600;display:block;margin-top:4px}
 
-  section{scroll-margin-top:106px;margin-top:30px}
-  .shead{display:flex;align-items:baseline;gap:11px;margin-bottom:7px;flex-wrap:wrap}
-  .shead .n{font-family:var(--mono);font-size:12px;color:var(--accent)}
-  .shead h2{margin:0;font-size:20px;border-left:4px solid var(--accent);padding-left:10px}
-  .shead .count{font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
-  .summary{color:var(--ink-dim);font-size:14px;line-height:1.55;max-width:96ch;margin:0 0 9px}
+  /* topic map */
+  .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+  .mapcard{cursor:pointer;text-align:left;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:13px;
+    background:var(--panel);padding:14px 15px;transition:.14s;color:inherit;font-family:var(--sans)}
+  .mapcard:hover{background:var(--panel-2);transform:translateY(-1px)}
+  .mapcard .mh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .mapcard h3{margin:0;font-size:15.5px;color:var(--ink)}
+  .mapcard .cnt{font-family:var(--mono);font-size:11px;color:var(--ink-faint);white-space:nowrap}
+  .mapcard p{margin:0;font-size:12.5px;color:var(--ink-dim);line-height:1.45}
+  .mapcard .go{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:9px;display:inline-block}
+
+  .guide{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;margin:22px 0 0}
+  .guide h3{margin:0 0 11px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-family:var(--mono)}
+  .grow{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .gitem{display:flex;gap:10px;align-items:flex-start}
+  .gitem .ic{font-size:17px;flex:none}
+  .gitem b{color:var(--ink);font-size:13px}
+  .gitem p{margin:2px 0 0;color:var(--ink-dim);font-size:12px;line-height:1.4}
+
+  /* TOPIC PANELS */
+  .thead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .thead h2{margin:0;font-size:24px;border-left:5px solid var(--accent);padding-left:12px}
+  .thead .badge{font-family:var(--mono);font-size:11px;color:var(--ink-dim);border:1px solid var(--line);border-radius:20px;padding:3px 10px}
+  .summary{color:var(--ink-dim);font-size:14.5px;line-height:1.6;margin:0 0 11px;max-width:90ch}
   .summary b{color:var(--ink)}
-  .angle{display:flex;gap:9px;align-items:flex-start;background:color-mix(in srgb,var(--accent) 10%,transparent);
-    border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:10px;padding:8px 12px;margin:0 0 16px;max-width:96ch}
-  .angle .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;color:var(--accent);text-transform:uppercase;flex:none;padding-top:2px}
-  .angle p{margin:0;font-size:13px;line-height:1.45;color:var(--ink)}
+  .angle{display:flex;gap:10px;align-items:flex-start;background:color-mix(in srgb,var(--accent) 12%,transparent);
+    border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);border-radius:11px;padding:10px 14px;margin:0 0 18px;max-width:90ch}
+  .angle .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;flex:none;padding-top:2px}
+  .angle p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
 
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;align-items:start}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;align-items:start}
   .card{border:1px solid var(--line);border-left:4px solid var(--e,var(--line));border-radius:13px;background:var(--panel);
     padding:11px 12px;display:flex;flex-direction:column;gap:9px}
   .rage{--e:var(--rage)} .side{--e:var(--side)} .neu{--e:var(--neu)}
@@ -78,9 +108,8 @@
   .src{font-size:11px;font-weight:600;white-space:nowrap}
   .src.ok{color:#7fe0ac} .src.official{color:#8cc6ff} .src.warn{color:#ff8f8f} .src.osint{color:#ffcf8a} .src.state{color:#ff9f7a} .src.op{color:var(--ink-dim)}
   .card .twitter-tweet{margin:0 !important}
-  .loadhint{color:var(--ink-faint);font-size:11px;font-family:var(--mono);padding:4px 2px}
 
-  footer{margin-top:40px;border-top:1px solid var(--line);padding-top:15px;color:var(--ink-faint);font-size:12px;line-height:1.6}
+  footer{margin-top:36px;border-top:1px solid var(--line);padding-top:15px;color:var(--ink-faint);font-size:12px;line-height:1.6}
   footer b{color:var(--ink-dim)}
 </style>
 </head>
@@ -90,36 +119,60 @@
   <div class="bar">
     <div class="brand"><span class="tally" aria-hidden="true"></span>
       <span><b>Liberty Politics — Show Dashboard</b><span>On-air rundown · Iran war desk</span></span></div>
-    <div class="clock">Updated <b>just now</b><br>refreshes every 15 min during your shows</div>
+    <div class="clock">Updated <b>just now</b><br>refreshes every 15 min during shows</div>
   </div>
 
-  <div class="guide">
-    <h3>How to read each clip — 3 things</h3>
-    <div class="grow">
-      <div class="gitem"><span class="ic">🟥</span><div><b>Stance — your take on it</b><p><span style="color:#ff8f8f">🟥 Argue against</span> · <span style="color:#7fe0ac">🟩 Your side</span> · <span style="color:var(--ink-dim)">⬜ Neutral</span>. From your show's views, not your likes.</p></div></div>
-      <div class="gitem"><span class="ic">🔥</span><div><b>Viral score — 0 to 100</b><p>How fast it's spreading on X now. Higher = more people seeing it. 90+ exploding, 70+ hot, 50+ rising.</p></div></div>
-      <div class="gitem"><span class="ic">🔎</span><div><b>Source — how much to trust it</b><p>Trusted, Official, Opinion, Unconfirmed, or <span style="color:#ff9f7a">state propaganda</span> / <span style="color:#ff8f8f">unverified hype</span>.</p></div></div>
+  <!-- TABS -->
+  <div class="tabs" id="tabs">
+    <button class="tabbtn active" data-tab="overview" style="--accent:var(--amber)"><span class="dot"></span>Overview</button>
+    <button class="tabbtn" data-tab="hormuz" style="--accent:var(--blue)"><span class="dot"></span>Hormuz <span class="cnt">3</span></button>
+    <button class="tabbtn" data-tab="strikes" style="--accent:var(--red)"><span class="dot"></span>Strikes <span class="cnt">3</span></button>
+    <button class="tabbtn" data-tab="senate" style="--accent:var(--green)"><span class="dot"></span>Senate <span class="cnt">5</span></button>
+    <button class="tabbtn" data-tab="regime" style="--accent:var(--amber)"><span class="dot"></span>Regime <span class="cnt">2</span></button>
+    <button class="tabbtn" data-tab="netanyahu" style="--accent:var(--violet)"><span class="dot"></span>Netanyahu <span class="cnt">2</span></button>
+    <button class="tabbtn" data-tab="mamdani" style="--accent:var(--pink)"><span class="dot"></span>Mamdani <span class="cnt">7</span></button>
+  </div>
+
+  <!-- ===== OVERVIEW ===== -->
+  <div class="panel active" id="panel-overview">
+    <div class="sop">
+      <h1>State of play — what's happening now</h1>
+      <p>The US–Iran war is in ~its 11th night and escalating. The fight centers on the <b>Strait of Hormuz</b> — Iran claims control, CENTCOM denies it, Trump threatened Iran's <b>bridges and power plants</b>. Strikes widened to <b>IRGC bases and water plants</b>; oil is up an 11th straight night. Hegseth is grilled in the Senate over an $87.6B ask. The two biggest viral moments now — Mamdani's "war criminal" clips — are both things <b>you'll want to argue against</b>.</p>
+    </div>
+
+    <div class="blocktitle">🔥 Biggest stories on X right now</div>
+    <div class="hot">
+      <a class="hotcard" style="--e:var(--rage)" href="https://x.com/NYCMayor/status/2079718073058091261" target="_blank" rel="noopener">
+        <span class="num"><span class="v">99</span><span class="l">viral</span></span><span class="t">🟥 Mamdani: "Netanyahu is a war criminal"<b>ARGUE AGAINST · 59M views</b></span></a>
+      <a class="hotcard" style="--e:var(--rage)" href="https://x.com/PopBase/status/2079802948926791774" target="_blank" rel="noopener">
+        <span class="num"><span class="v">92</span><span class="l">viral</span></span><span class="t">🟥 Mamdani urges feds to arrest Netanyahu<b>ARGUE AGAINST · 1.1M views</b></span></a>
+      <a class="hotcard" style="--e:var(--neu)" href="https://x.com/atrupar/status/2079663803935953321" target="_blank" rel="noopener">
+        <span class="num"><span class="v">80</span><span class="l">viral</span></span><span class="t">Sen. Kennedy: "We need straight answers!"<b>NEUTRAL · 273K views</b></span></a>
+    </div>
+
+    <div class="blocktitle">📁 The 6 topics — tap one to open it</div>
+    <div class="map">
+      <button class="mapcard gotab" data-tab="hormuz" style="--accent:var(--blue)"><div class="mh"><h3>Naval War &amp; Hormuz</h3><span class="cnt">3 clips</span></div><p>Who controls the strait — CENTCOM vs. Iran, Trump's threats, oil.</p><span class="go">Open →</span></button>
+      <button class="mapcard gotab" data-tab="strikes" style="--accent:var(--red)"><div class="mh"><h3>Strikes &amp; Escalation</h3><span class="cnt">3 clips</span></div><p>IRGC bases hit, water-plant strikes, and the viral disinfo to avoid.</p><span class="go">Open →</span></button>
+      <button class="mapcard gotab" data-tab="senate" style="--accent:var(--green)"><div class="mh"><h3>The Senate Reckoning</h3><span class="cnt">5 clips</span></div><p>Hegseth grilled on the $87.6B ask; the "war crimes" framing to rebut.</p><span class="go">Open →</span></button>
+      <button class="mapcard gotab" data-tab="regime" style="--accent:var(--amber)"><div class="mh"><h3>Regime &amp; Opposition</h3><span class="cnt">2 clips</span></div><p>Regime propaganda vs. Pahlavi's opposition message. Good-vs-evil.</p><span class="go">Open →</span></button>
+      <button class="mapcard gotab" data-tab="netanyahu" style="--accent:var(--violet)"><div class="mh"><h3>Netanyahu &amp; the Nuke Claim</h3><span class="cnt">2 clips</span></div><p>The "30 years crying nuke" attack line — bait to undermine the case.</p><span class="go">Open →</span></button>
+      <button class="mapcard gotab" data-tab="mamdani" style="--accent:var(--pink)"><div class="mh"><h3>Mamdani &amp; the ICC</h3><span class="cnt">7 clips</span></div><p>The biggest story: arrest fight, Danon &amp; Trump's pushback. Your lane.</p><span class="go">Open →</span></button>
+    </div>
+
+    <div class="guide">
+      <h3>How to read each clip</h3>
+      <div class="grow">
+        <div class="gitem"><span class="ic">🟥</span><div><b>Stance — your take</b><p><span style="color:#ff8f8f">🟥 Argue against</span> · <span style="color:#7fe0ac">🟩 Your side</span> · <span style="color:var(--ink-dim)">⬜ Neutral</span>. From your views, not your likes.</p></div></div>
+        <div class="gitem"><span class="ic">🔥</span><div><b>Viral score 0–100</b><p>How fast it's spreading on X now. Higher = more people seeing it.</p></div></div>
+        <div class="gitem"><span class="ic">🔎</span><div><b>Source — trust level</b><p>Trusted / Official / Opinion / Unconfirmed / <span style="color:#ff9f7a">propaganda</span> / <span style="color:#ff8f8f">hype</span>.</p></div></div>
+      </div>
     </div>
   </div>
 
-  <div class="sop">
-    <h1>State of play — what's happening now</h1>
-    <p>The US–Iran war is in ~its 11th night and escalating. The fight centers on the <b>Strait of Hormuz</b> — Iran claims control, CENTCOM denies it, Trump threatened Iran's <b>bridges and power plants</b>. Strikes widened to <b>IRGC bases and water plants</b>; oil is up an 11th straight night. Hegseth is grilled in the Senate over an $87.6B ask. The two biggest viral moments now — Mamdani's "war criminal" clips — are both things <b>you'll want to argue against</b>.</p>
-  </div>
-
-  <nav class="topics">
-    <a href="#hormuz" style="--accent:var(--blue)"><span class="dot"></span>Naval War &amp; Hormuz</a>
-    <a href="#strikes" style="--accent:var(--red)"><span class="dot"></span>Strikes &amp; Escalation</a>
-    <a href="#senate" style="--accent:var(--green)"><span class="dot"></span>Senate Reckoning</a>
-    <a href="#regime" style="--accent:var(--amber)"><span class="dot"></span>Regime &amp; Opposition</a>
-    <a href="#netanyahu" style="--accent:var(--violet)"><span class="dot"></span>Netanyahu &amp; the Nuke Claim</a>
-    <a href="#mamdani" style="--accent:var(--pink)"><span class="dot"></span>Mamdani &amp; the ICC</a>
-  </nav>
-  <div class="loadhint">Video thumbnails load from X — give them a second on first open.</div>
-
-  <!-- 1 HORMUZ -->
-  <section id="hormuz" style="--accent:var(--blue)">
-    <div class="shead"><span class="n">01</span><h2>The Naval War &amp; the Strait of Hormuz</h2></div>
+  <!-- ===== HORMUZ ===== -->
+  <div class="panel" id="panel-hormuz" style="--accent:var(--blue)">
+    <div class="thead"><h2>Naval War &amp; the Strait of Hormuz</h2><span class="badge">3 clips</span></div>
     <p class="summary">Iran claims it controls the strait; <b>CENTCOM issued a point-blank denial</b>. Trump threatened Iran's bridges and power plants, then said the US doesn't need the strait anyway.</p>
     <div class="angle"><span class="tag">Your angle</span><p>Play CENTCOM's flat denial against the regime's claim, and flag Trump's contradiction — "we don't need it" while bombing to keep it open.</p></div>
     <div class="cards">
@@ -130,11 +183,11 @@
       <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 20<small>/100</small></span><span class="src official">📊 Markets</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/CHItrader/status/2080028591300260131"></a></blockquote></div>
     </div>
-  </section>
+  </div>
 
-  <!-- 2 STRIKES -->
-  <section id="strikes" style="--accent:var(--red)">
-    <div class="shead"><span class="n">02</span><h2>US Strikes &amp; Escalation</h2></div>
+  <!-- ===== STRIKES ===== -->
+  <div class="panel" id="panel-strikes" style="--accent:var(--red)">
+    <div class="thead"><h2>US Strikes &amp; Escalation</h2><span class="badge">3 clips</span></div>
     <p class="summary">The strike map keeps widening — ships, then IRGC bases, then water plants. The info war is just as hot: the biggest "battle damage" clips come from hype accounts with unconfirmed numbers.</p>
     <div class="angle"><span class="tag">Your angle</span><p>Cheer the real hits on the IRGC, but separate them from the disinfo — the "1,800 missiles" clip is your-side sentiment on a fake account.</p></div>
     <div class="cards">
@@ -145,11 +198,11 @@
       <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 55<small>/100</small></span><span class="src op">🗣️ Clip</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Osint613/status/2079930540832981436"></a></blockquote></div>
     </div>
-  </section>
+  </div>
 
-  <!-- 3 SENATE -->
-  <section id="senate" style="--accent:var(--green)">
-    <div class="shead"><span class="n">03</span><h2>The Senate Reckoning</h2></div>
+  <!-- ===== SENATE ===== -->
+  <div class="panel" id="panel-senate" style="--accent:var(--green)">
+    <div class="thead"><h2>The Senate Reckoning</h2><span class="badge">5 clips</span></div>
     <p class="summary">Hegseth asked for <b>$87.6B more</b> after admitting the war's cost $37.5B. Anti-war senators and protesters push the "US war crimes" framing — the narrative your show exists to rebut.</p>
     <div class="angle"><span class="tag">Your angle</span><p>The war-crime / "stop bombing" framing is your opposition's whole play. Rebut it: the regime is the villain. Kennedy's oversight is fair game (neutral); the anti-war framing is not.</p></div>
     <div class="cards">
@@ -164,11 +217,11 @@
       <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 48<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RoguePOTUSStaff/status/2079695834933772784"></a></blockquote></div>
     </div>
-  </section>
+  </div>
 
-  <!-- 4 REGIME -->
-  <section id="regime" style="--accent:var(--amber)">
-    <div class="shead"><span class="n">04</span><h2>Iran's Regime &amp; the Opposition</h2></div>
+  <!-- ===== REGIME ===== -->
+  <div class="panel" id="panel-regime" style="--accent:var(--amber)">
+    <div class="thead"><h2>Iran's Regime &amp; the Opposition</h2><span class="badge">2 clips</span></div>
     <p class="summary">Two competing messages to Iranians. The <b>regime</b> broadcasts defiance via state media; the <b>opposition</b> (Reza Pahlavi) puts out its own appeals — this one aimed at Iranians in the south.</p>
     <div class="angle"><span class="tag">Your angle</span><p>The cleanest good-vs-evil segment on the board: regime propaganda to tear apart, opposition to amplify.</p></div>
     <div class="cards">
@@ -177,11 +230,11 @@
       <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 20<small>/100</small></span><span class="src op">🗣️ Opposition</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Lastkombo/status/2079893242598834593"></a></blockquote></div>
     </div>
-  </section>
+  </div>
 
-  <!-- 5 NETANYAHU -->
-  <section id="netanyahu" style="--accent:var(--violet)">
-    <div class="shead"><span class="n">05</span><h2>Netanyahu &amp; the "Days From a Nuke" Claim</h2></div>
+  <!-- ===== NETANYAHU ===== -->
+  <div class="panel" id="panel-netanyahu" style="--accent:var(--violet)">
+    <div class="thead"><h2>Netanyahu &amp; the "Days From a Nuke" Claim</h2><span class="badge">2 clips</span></div>
     <p class="summary">Anti-war voices are resurfacing old clips of <b>Netanyahu predicting an imminent Iranian bomb</b> — going back 30 years — to discredit the case against the regime.</p>
     <div class="angle"><span class="tag">Your angle</span><p>Rebut the "boy who cried nuke" line: mocking Netanyahu doesn't make the regime any less dangerous. Bait to undermine pressure on the Islamic Republic.</p></div>
     <div class="cards">
@@ -190,11 +243,11 @@
       <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 30<small>/100</small></span><span class="src op">🗣️ Clip</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/HotSpotHotSpot/status/1916574896307712327"></a></blockquote></div>
     </div>
-  </section>
+  </div>
 
-  <!-- 6 MAMDANI -->
-  <section id="mamdani" style="--accent:var(--pink)">
-    <div class="shead"><span class="n">06</span><h2>Mamdani, the ICC &amp; the Arrest Fight</h2></div>
+  <!-- ===== MAMDANI ===== -->
+  <div class="panel" id="panel-mamdani" style="--accent:var(--pink)">
+    <div class="thead"><h2>Mamdani, the ICC &amp; the Arrest Fight</h2><span class="badge">7 clips</span></div>
     <p class="summary">The war's biggest domestic story, and mostly argue-against fuel. Mayor <b>Mamdani</b> called Netanyahu a war criminal (59M views) and urged the feds to execute the ICC warrant. Trump shut it down; Israel's UN ambassador said <b>Mamdani</b> should be arrested.</p>
     <div class="angle"><span class="tag">Your angle</span><p>Your lane exactly: Mamdani siding against the man fighting the Islamic Republic. Amplify Danon's and Trump's pushback; rebut the "war criminal" framing.</p></div>
     <div class="cards">
@@ -213,12 +266,24 @@
       <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 35<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
         <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/israelnewspulse/status/2079920167379693953"></a></blockquote></div>
     </div>
-  </section>
+  </div>
 
   <footer>
-    <b>How this works:</b> topics come from your Descript transcripts; clips are scanned live off X. Thumbnails and video play right here (loaded from X). <b>Viral score</b> = how fast a post is spreading now; <b>stance</b> is from your show's positions, not your likes; <b>source</b> flags how much to trust each one. This page is a shareable link that works on any device.
+    <b>How this works:</b> topics come from your Descript transcripts; clips are scanned live off X. Tap a topic tab to see just that topic. <b>Viral score</b> = how fast a post is spreading now; <b>stance</b> is from your show's positions, not your likes; <b>source</b> = how much to trust it. Shareable link, works on any device.
   </footer>
 
 </div>
+
+<script>
+  function show(id){
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active', p.id==='panel-'+id);});
+    document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.toggle('active', b.dataset.tab===id);});
+    var t=document.getElementById('tabs'); if(t) t.scrollIntoView({block:'start'});
+    if(window.twttr && window.twttr.widgets){ window.twttr.widgets.load(document.getElementById('panel-'+id)); }
+  }
+  document.querySelectorAll('.tabbtn, .gotab').forEach(function(b){
+    b.addEventListener('click', function(){ show(b.dataset.tab); });
+  });
+</script>
 </body>
 </html>
