@@ -83,6 +83,7 @@ CRED_LABEL = {"ok": ("&#9989; Trusted", "ok"), "official": ("&#128202; Official"
 
 def api_get(query, max_results=30):
     params = {"query": query, "max_results": str(max_results),
+              "sort_order": "relevancy",  # engagement-ranked, not newest-first (surfaces the viral, high-like clips)
               "tweet.fields": "public_metrics,created_at,attachments,lang",
               "expansions": "author_id,attachments.media_keys",
               "user.fields": "username,name,verified", "media.fields": "type"}
