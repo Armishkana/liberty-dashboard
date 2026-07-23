@@ -1,292 +1,283 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Liberty Politics — Show Dashboard</title>
-<meta name="robots" content="noindex, nofollow">
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liberty Politics — Show Dashboard</title><meta name="robots" content="noindex, nofollow">
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <style>
-  :root{
-    --bg:#0b0e13; --panel:#141922; --panel-2:#1b2230; --line:#26303f; --line-2:#333f52;
-    --ink:#eef2f7; --ink-dim:#9aa7b8; --ink-faint:#6c7a8b;
-    --blue:#5aa9ff; --red:#ff5252; --green:#4bd08b; --amber:#ffb02e; --violet:#b98cff; --pink:#ff7eb6;
-    --rage:#ff5c5c; --side:#4bd08b; --neu:#8493a6;
-    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  }
-  *{box-sizing:border-box}
-  html,body{background:#0b0e13;margin:0;padding:0;min-height:100%}
-  body{color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(14px,3vw,40px) 80px}
-  a{color:inherit}
-  .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 2px 10px}
-  .brand{display:flex;align-items:center;gap:11px}
-  .tally{width:12px;height:12px;border-radius:50%;background:var(--red);animation:pulse 2s infinite;flex:none}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,82,82,.55)}70%{box-shadow:0 0 0 11px rgba(255,82,82,0)}100%{box-shadow:0 0 0 0 rgba(255,82,82,0)}}
-  @media (prefers-reduced-motion:reduce){.tally{animation:none}}
-  .brand b{font-size:17px}
-  .brand span{display:block;color:var(--ink-faint);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
-  .clock{font-family:var(--mono);font-size:11px;color:var(--ink-dim);text-align:right;line-height:1.5}
-  .clock b{color:var(--amber)}
-  .tabs{position:sticky;top:0;z-index:40;background:rgba(11,14,19,.96);backdrop-filter:blur(12px);
-    border-bottom:1px solid var(--line);display:flex;gap:6px;padding:9px 0;margin-bottom:20px;overflow-x:auto}
-  .tabbtn{flex:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink-dim);
-    border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:10px;transition:.14s;white-space:nowrap;display:flex;align-items:center;gap:7px}
-  .tabbtn:hover{color:var(--ink)}
-  .tabbtn .dot{width:8px;height:8px;border-radius:50%;background:var(--accent,var(--ink-faint))}
-  .tabbtn .cnt{font-family:var(--mono);font-size:10px;color:var(--ink-faint);background:rgba(255,255,255,.05);padding:1px 6px;border-radius:20px}
-  .tabbtn.active{color:#fff;border-color:var(--accent,var(--amber));background:color-mix(in srgb,var(--accent,var(--amber)) 16%,var(--panel))}
-  .tabbtn.active .cnt{color:var(--ink)}
-  .panel{display:none}
-  .panel.active{display:block;animation:fade .2s ease}
-  @keyframes fade{from{opacity:.4}to{opacity:1}}
-  .sop{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:16px 18px;margin:0 0 16px}
-  .sop h1{margin:0 0 7px;font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);font-family:var(--mono)}
-  .sop p{margin:0;font-size:15px;line-height:1.62;color:var(--ink-dim)}
-  .sop b{color:var(--ink)}
-  .blocktitle{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:22px 2px 10px}
-  .hot{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
-  .hotcard{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-left:4px solid var(--e);border-radius:12px;
-    background:linear-gradient(180deg,var(--panel-2),var(--panel));padding:12px 13px;text-decoration:none;color:inherit;transition:.14s}
-  .hotcard:hover{border-color:var(--red)}
-  .hotcard .num{text-align:center;flex:none}
-  .hotcard .num .v{font-family:var(--mono);font-weight:700;font-size:23px;color:var(--red);line-height:1}
-  .hotcard .num .l{font-family:var(--mono);font-size:8px;letter-spacing:.06em;color:var(--ink-faint);text-transform:uppercase;margin-top:3px}
-  .hotcard .t{font-size:12.5px;line-height:1.35}
-  .hotcard .t b{color:var(--ink-faint);font-family:var(--mono);font-size:10px;font-weight:600;display:block;margin-top:4px}
-  .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
-  .mapcard{cursor:pointer;text-align:left;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:13px;
-    background:var(--panel);padding:14px 15px;transition:.14s;color:inherit;font-family:var(--sans)}
-  .mapcard:hover{background:var(--panel-2);transform:translateY(-1px)}
-  .mapcard .mh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
-  .mapcard h3{margin:0;font-size:15.5px;color:var(--ink)}
-  .mapcard .cnt{font-family:var(--mono);font-size:11px;color:var(--ink-faint);white-space:nowrap}
-  .mapcard p{margin:0;font-size:12.5px;color:var(--ink-dim);line-height:1.45}
-  .mapcard .go{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:9px;display:inline-block}
-  .guide{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;margin:22px 0 0}
-  .guide h3{margin:0 0 11px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-family:var(--mono)}
-  .grow{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-  .gitem{display:flex;gap:10px;align-items:flex-start}
-  .gitem .ic{font-size:17px;flex:none}
-  .gitem b{color:var(--ink);font-size:13px}
-  .gitem p{margin:2px 0 0;color:var(--ink-dim);font-size:12px;line-height:1.4}
-  .thead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
-  .thead h2{margin:0;font-size:24px;border-left:5px solid var(--accent);padding-left:12px}
-  .thead .badge{font-family:var(--mono);font-size:11px;color:var(--ink-dim);border:1px solid var(--line);border-radius:20px;padding:3px 10px}
-  .summary{color:var(--ink-dim);font-size:14.5px;line-height:1.6;margin:0 0 11px;max-width:90ch}
-  .summary b{color:var(--ink)}
-  .angle{display:flex;gap:10px;align-items:flex-start;background:color-mix(in srgb,var(--accent) 12%,transparent);
-    border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);border-radius:11px;padding:10px 14px;margin:0 0 18px;max-width:90ch}
-  .angle .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;flex:none;padding-top:2px}
-  .angle p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink)}
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;align-items:start}
-  .card{border:1px solid var(--line);border-left:4px solid var(--e,var(--line));border-radius:13px;background:var(--panel);
-    padding:11px 12px;display:flex;flex-direction:column;gap:9px}
-  .rage{--e:var(--rage)} .side{--e:var(--side)} .neu{--e:var(--neu)}
-  .lbls{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-  .st{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:7px;white-space:nowrap}
-  .st-rage{color:#ffdada;background:rgba(255,82,82,.22);border:1px solid rgba(255,82,82,.45)}
-  .st-side{color:#c8f7de;background:rgba(75,208,139,.18);border:1px solid rgba(75,208,139,.4)}
-  .st-neu{color:var(--ink-dim);background:rgba(132,147,166,.16);border:1px solid var(--line-2)}
-  .vs{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap}
-  .vs small{color:var(--ink-faint);font-weight:400}
-  .src{font-size:11px;font-weight:600;white-space:nowrap}
-  .src.ok{color:#7fe0ac} .src.official{color:#8cc6ff} .src.warn{color:#ff8f8f} .src.osint{color:#ffcf8a} .src.state{color:#ff9f7a} .src.op{color:var(--ink-dim)}
-  .card .twitter-tweet{margin:0 !important}
-  footer{margin-top:36px;border-top:1px solid var(--line);padding-top:15px;color:var(--ink-faint);font-size:12px;line-height:1.6}
-  footer b{color:var(--ink-dim)}
-</style>
-</head>
-<body>
-<div class="wrap">
-
-  <div class="bar">
-    <div class="brand"><span class="tally" aria-hidden="true"></span>
-      <span><b>Liberty Politics — Show Dashboard</b><span>On-air rundown · Iran war desk</span></span></div>
-    <div class="clock">Updated <b>just now</b><br>refreshes every 15 min during shows</div>
-  </div>
-
-  <div class="tabs" id="tabs">
-    <button class="tabbtn active" data-tab="overview" style="--accent:var(--amber)"><span class="dot"></span>Overview</button>
-    <button class="tabbtn" data-tab="hormuz" style="--accent:var(--blue)"><span class="dot"></span>Hormuz <span class="cnt">9</span></button>
-    <button class="tabbtn" data-tab="strikes" style="--accent:var(--red)"><span class="dot"></span>Strikes <span class="cnt">6</span></button>
-    <button class="tabbtn" data-tab="senate" style="--accent:var(--green)"><span class="dot"></span>Senate <span class="cnt">5</span></button>
-    <button class="tabbtn" data-tab="regime" style="--accent:var(--amber)"><span class="dot"></span>Regime <span class="cnt">3</span></button>
-    <button class="tabbtn" data-tab="netanyahu" style="--accent:var(--violet)"><span class="dot"></span>Netanyahu <span class="cnt">3</span></button>
-    <button class="tabbtn" data-tab="mamdani" style="--accent:var(--pink)"><span class="dot"></span>Mamdani <span class="cnt">7</span></button>
-  </div>
-
-  <!-- OVERVIEW -->
-  <div class="panel active" id="panel-overview">
-    <div class="sop">
-      <h1>State of play — what's happening now</h1>
-      <p>The US–Iran war is in ~its 11th night and escalating. The fight centers on the <b>Strait of Hormuz</b> — Iran claims control, CENTCOM denies it, Trump threatened Iran's <b>bridges and power plants</b> for any ship attack. Strikes widened to <b>IRGC bases and water plants</b>; oil is up an 11th straight night. Hegseth is grilled in the Senate over an $87.6B ask. The two biggest viral moments now — Mamdani's "war criminal" clips — are both things <b>you'll want to argue against</b>.</p>
-    </div>
-    <div class="blocktitle">🔥 Biggest stories on X right now</div>
-    <div class="hot">
-      <a class="hotcard" style="--e:var(--rage)" href="https://x.com/NYCMayor/status/2079718073058091261" target="_blank" rel="noopener">
-        <span class="num"><span class="v">99</span><span class="l">viral</span></span><span class="t">🟥 Mamdani: "Netanyahu is a war criminal"<b>ARGUE AGAINST · 59M views</b></span></a>
-      <a class="hotcard" style="--e:var(--rage)" href="https://x.com/PopBase/status/2079802948926791774" target="_blank" rel="noopener">
-        <span class="num"><span class="v">92</span><span class="l">viral</span></span><span class="t">🟥 Mamdani urges feds to arrest Netanyahu<b>ARGUE AGAINST · 1.1M views</b></span></a>
-      <a class="hotcard" style="--e:var(--rage)" href="https://x.com/IRGC_Press/status/2079690672999948420" target="_blank" rel="noopener">
-        <span class="num"><span class="v">78</span><span class="l">viral</span></span><span class="t">🟥 IRGC brags of "assassinations inside Israel"<b>REGIME PROPAGANDA · 379K views</b></span></a>
-    </div>
-    <div class="blocktitle">📁 The 6 topics — tap one to open it</div>
-    <div class="map">
-      <button class="mapcard gotab" data-tab="hormuz" style="--accent:var(--blue)"><div class="mh"><h3>Naval War &amp; Hormuz</h3><span class="cnt">9 clips</span></div><p>Who controls the strait — CENTCOM vs. Iran, Rubio, ship traffic, oil.</p><span class="go">Open →</span></button>
-      <button class="mapcard gotab" data-tab="strikes" style="--accent:var(--red)"><div class="mh"><h3>Strikes &amp; Escalation</h3><span class="cnt">6 clips</span></div><p>IRGC bases hit, US bombers, and the viral disinfo to avoid.</p><span class="go">Open →</span></button>
-      <button class="mapcard gotab" data-tab="senate" style="--accent:var(--green)"><div class="mh"><h3>The Senate Reckoning</h3><span class="cnt">5 clips</span></div><p>Hegseth grilled on the $87.6B ask; the "war crimes" framing to rebut.</p><span class="go">Open →</span></button>
-      <button class="mapcard gotab" data-tab="regime" style="--accent:var(--amber)"><div class="mh"><h3>Regime &amp; Opposition</h3><span class="cnt">3 clips</span></div><p>Regime/IRGC propaganda vs. Pahlavi's opposition message.</p><span class="go">Open →</span></button>
-      <button class="mapcard gotab" data-tab="netanyahu" style="--accent:var(--violet)"><div class="mh"><h3>Netanyahu &amp; the Nuke Claim</h3><span class="cnt">3 clips</span></div><p>The "30 years crying nuke" attack line — bait to undermine the case.</p><span class="go">Open →</span></button>
-      <button class="mapcard gotab" data-tab="mamdani" style="--accent:var(--pink)"><div class="mh"><h3>Mamdani &amp; the ICC</h3><span class="cnt">7 clips</span></div><p>The biggest story: arrest fight, Danon &amp; Trump's pushback. Your lane.</p><span class="go">Open →</span></button>
-    </div>
-    <div class="guide">
-      <h3>How to read each clip</h3>
-      <div class="grow">
-        <div class="gitem"><span class="ic">🟥</span><div><b>Stance — your take</b><p><span style="color:#ff8f8f">🟥 Argue against</span> · <span style="color:#7fe0ac">🟩 Your side</span> · <span style="color:var(--ink-dim)">⬜ Neutral</span>. From your views, not your likes.</p></div></div>
-        <div class="gitem"><span class="ic">🔥</span><div><b>Viral score 0–100</b><p>How fast it's spreading on X now. Higher = more people seeing it.</p></div></div>
-        <div class="gitem"><span class="ic">🔎</span><div><b>Source — trust level</b><p>Trusted / Official / Opinion / Unconfirmed / <span style="color:#ff9f7a">propaganda</span> / <span style="color:#ff8f8f">hype</span>.</p></div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- HORMUZ (9) -->
-  <div class="panel" id="panel-hormuz" style="--accent:var(--blue)">
-    <div class="thead"><h2>Naval War &amp; the Strait of Hormuz</h2><span class="badge">9 clips</span></div>
-    <p class="summary">Iran claims it controls the strait; <b>CENTCOM issued a point-blank denial</b>. Rubio is warning the world (and ASEAN) not to let Iran hold the chokepoint; Trump threatened Iran's bridges and power plants, then said the US doesn't need the strait anyway. Ship traffic is collapsing; oil keeps climbing.</p>
-    <div class="angle"><span class="tag">Your angle</span><p>Play CENTCOM's and Rubio's line against the regime's claim, and flag Trump's contradiction — "we don't need it" while bombing to keep it open. Watch the RT clips: that's the regime's framing to rebut.</p></div>
-    <div class="cards">
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 72<small>/100</small></span><span class="src ok">✅ Trusted</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/WatcherGuru/status/2079641410354254192"></a></blockquote></div>
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 70<small>/100</small></span><span class="src ok">✅ Trusted</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Acyn/status/2079653925494689988"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 68<small>/100</small></span><span class="src ok">✅ Trusted (Reuters)</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Reuters/status/2079835084295664048"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 55<small>/100</small></span><span class="src official">📊 Official</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/CENTCOM/status/2080019954192031917"></a></blockquote></div>
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 55<small>/100</small></span><span class="src ok">✅ Trusted (Reuters)</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Reuters/status/2079300310535676189"></a></blockquote></div>
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 40<small>/100</small></span><span class="src state">🏴 Russian state media</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RT_on_X/status/2079130996981604490"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 38<small>/100</small></span><span class="src state">🏴 Russian state media</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RT_on_X/status/2079391279301935128"></a></blockquote></div>
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 30<small>/100</small></span><span class="src op">🗣️ Clip</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/factpostnews/status/2080026645155447000"></a></blockquote></div>
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 20<small>/100</small></span><span class="src official">📊 Markets</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/CHItrader/status/2080028591300260131"></a></blockquote></div>
-    </div>
-  </div>
-
-  <!-- STRIKES (6) -->
-  <div class="panel" id="panel-strikes" style="--accent:var(--red)">
-    <div class="thead"><h2>US Strikes &amp; Escalation</h2><span class="badge">6 clips</span></div>
-    <p class="summary">The strike map keeps widening — ships, then IRGC bases, then water plants, with fresh US bomber footage. The info war is just as hot: the biggest "battle damage" clips come from hype accounts with unconfirmed numbers.</p>
-    <div class="angle"><span class="tag">Your angle</span><p>Cheer the real hits on the IRGC, but separate them from the disinfo — the "1,800 missiles" clip is your-side sentiment on a fake account, and "100+ vaporized" is unconfirmed. Show the difference live.</p></div>
-    <div class="cards">
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 90<small>/100</small></span><span class="src warn">⚠️ Don't trust — hype</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/usairforce_x/status/2079600043561263323"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 58<small>/100</small></span><span class="src osint">🟡 Unconfirmed</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/WarHorizon/status/2079731568218685741"></a></blockquote></div>
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 55<small>/100</small></span><span class="src op">🗣️ Clip</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Osint613/status/2079930540832981436"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 52<small>/100</small></span><span class="src osint">🟡 Unconfirmed — "100+ vaporized"</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/the_Atharva/status/2079421256810770804"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 42<small>/100</small></span><span class="src op">🗣️ Pro-Israel</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/EYakoby/status/2079733944862269458"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 30<small>/100</small></span><span class="src osint">🟡 OSINT</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/TheSDPadresFan/status/2079992035394883592"></a></blockquote></div>
-    </div>
-  </div>
-
-  <!-- SENATE (5) -->
-  <div class="panel" id="panel-senate" style="--accent:var(--green)">
-    <div class="thead"><h2>The Senate Reckoning</h2><span class="badge">5 clips</span></div>
-    <p class="summary">Hegseth asked for <b>$87.6B more</b> after admitting the war's cost $37.5B. Anti-war senators and protesters push the "US war crimes" framing — the narrative your show exists to rebut.</p>
-    <div class="angle"><span class="tag">Your angle</span><p>The war-crime / "stop bombing" framing is your opposition's whole play. Rebut it: the regime is the villain. Kennedy's oversight is fair game (neutral); the anti-war framing is not.</p></div>
-    <div class="cards">
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 80<small>/100</small></span><span class="src ok">✅ Trusted</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/atrupar/status/2079663803935953321"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 74<small>/100</small></span><span class="src ok">✅ Trusted</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/atrupar/status/2079665193907314920"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 62<small>/100</small></span><span class="src state">🏴 Russian state media</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RT_com/status/2079656783212085363"></a></blockquote></div>
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 52<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/LegendaryEnergy/status/2079686567203856496"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 48<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RoguePOTUSStaff/status/2079695834933772784"></a></blockquote></div>
-    </div>
-  </div>
-
-  <!-- REGIME (3) -->
-  <div class="panel" id="panel-regime" style="--accent:var(--amber)">
-    <div class="thead"><h2>Iran's Regime &amp; the Opposition</h2><span class="badge">3 clips</span></div>
-    <p class="summary">The regime and its IRGC are broadcasting defiance and bragging about operations (including claimed assassinations inside Israel). Against that, the <b>opposition</b> (Reza Pahlavi) is appealing directly to Iranians.</p>
-    <div class="angle"><span class="tag">Your angle</span><p>The cleanest good-vs-evil segment: regime/IRGC propaganda to tear apart, opposition to amplify. Flag Tasnim and IRGC_Press clearly as regime accounts.</p></div>
-    <div class="cards">
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 78<small>/100</small></span><span class="src state">🏴 IRGC (regime) account</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/IRGC_Press/status/2079690672999948420"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 54<small>/100</small></span><span class="src state">🏴 Regime propaganda</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Tasnimnews_EN/status/2079857470558830691"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 20<small>/100</small></span><span class="src op">🗣️ Opposition</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Lastkombo/status/2079893242598834593"></a></blockquote></div>
-    </div>
-  </div>
-
-  <!-- NETANYAHU (3) -->
-  <div class="panel" id="panel-netanyahu" style="--accent:var(--violet)">
-    <div class="thead"><h2>Netanyahu &amp; the "Days From a Nuke" Claim</h2><span class="badge">3 clips</span></div>
-    <p class="summary">Anti-war voices are resurfacing old clips of <b>Netanyahu predicting an imminent Iranian bomb</b> — going back 30 years — to discredit the case against the regime. Two different supercuts are circulating (4.3M and 136K views).</p>
-    <div class="angle"><span class="tag">Your angle</span><p>Rebut the "boy who cried nuke" line: mocking Netanyahu doesn't make the regime any less dangerous. Bait to undermine pressure on the Islamic Republic.</p></div>
-    <div class="cards">
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 45<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/OwenShroyer1776/status/2026811589391696344"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 38<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/NotHoodlum/status/2051775322421420100"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 30<small>/100</small></span><span class="src op">🗣️ Clip</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/HotSpotHotSpot/status/1916574896307712327"></a></blockquote></div>
-    </div>
-  </div>
-
-  <!-- MAMDANI (7) -->
-  <div class="panel" id="panel-mamdani" style="--accent:var(--pink)">
-    <div class="thead"><h2>Mamdani, the ICC &amp; the Arrest Fight</h2><span class="badge">7 clips</span></div>
-    <p class="summary">The war's biggest domestic story, and mostly argue-against fuel. Mayor <b>Mamdani</b> called Netanyahu a war criminal (59M views) and urged the feds to execute the ICC warrant. Trump shut it down; Israel's UN ambassador said <b>Mamdani</b> should be arrested.</p>
-    <div class="angle"><span class="tag">Your angle</span><p>Your lane exactly: Mamdani siding against the man fighting the Islamic Republic. Amplify Danon's and Trump's pushback; rebut the "war criminal" framing.</p></div>
-    <div class="cards">
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 99<small>/100</small></span><span class="src official">📊 Official</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/NYCMayor/status/2079718073058091261"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 92<small>/100</small></span><span class="src ok">✅ Trusted</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/PopBase/status/2079802948926791774"></a></blockquote></div>
-      <div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Aligns · toxic source</span><span class="vs">🔥 87<small>/100</small></span><span class="src op">🗣️ Handle with care</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/ImperiumFirst/status/2079811869427089484"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 70<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/emilykschrader/status/2079585430563958984"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 60<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Partisan_12/status/2079582249545318721"></a></blockquote></div>
-      <div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 40<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/EYakoby/status/2079782848500846995"></a></blockquote></div>
-      <div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 35<small>/100</small></span><span class="src op">🗣️ Commentary</span></div>
-        <blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/israelnewspulse/status/2079920167379693953"></a></blockquote></div>
-    </div>
-  </div>
-
-  <footer>
-    <b>How this works:</b> topics come from your Descript transcripts; clips are scanned live off X. Tap a topic tab to see just that topic. <b>Viral score</b> = how fast a post is spreading now; <b>stance</b> is from your show's positions, not your likes; <b>source</b> = how much to trust it. Shareable link, works on any device.
-  </footer>
-
+:root{--bg:#0b0e13;--panel:#141922;--panel-2:#1b2230;--line:#26303f;--line-2:#333f52;--ink:#eef2f7;--ink-dim:#9aa7b8;--ink-faint:#6c7a8b;--red:#ff5252;--rage:#ff5c5c;--side:#4bd08b;--neu:#8493a6;--mono:ui-monospace,Menlo,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}html,body{background:#0b0e13;margin:0;padding:0;min-height:100%}
+body{color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(14px,3vw,40px) 80px}a{color:inherit}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 2px 10px}
+.brand{display:flex;align-items:center;gap:11px}.tally{width:12px;height:12px;border-radius:50%;background:var(--red)}
+.brand b{font-size:17px}.brand span{display:block;color:var(--ink-faint);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
+.clock{font-family:var(--mono);font-size:11px;color:var(--ink-dim);text-align:right}.clock b{color:#ffb02e}
+.tabs{position:sticky;top:0;z-index:40;background:rgba(11,14,19,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;gap:6px;padding:9px 0;margin-bottom:20px;overflow-x:auto}
+.tabbtn{flex:none;cursor:pointer;font:600 13px var(--sans);color:var(--ink-dim);border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:10px;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.tabbtn .dot{width:8px;height:8px;border-radius:50%;background:var(--accent,var(--ink-faint))}
+.tabbtn .cnt{font:10px var(--mono);color:var(--ink-faint);background:rgba(255,255,255,.05);padding:1px 6px;border-radius:20px}
+.tabbtn.active{color:#fff;border-color:var(--accent,#ffb02e);background:color-mix(in srgb,var(--accent,#ffb02e) 16%,var(--panel))}
+.panel{display:none}.panel.active{display:block}
+.sop{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:16px 18px;margin:0 0 16px}
+.sop h1{margin:0 0 7px;font:600 12px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:#ffb02e}
+.sop p{margin:0;font-size:15px;color:var(--ink-dim)}.sop b{color:var(--ink)}
+.blocktitle{font:10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:22px 2px 10px}
+.hot{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.hotcard{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-left:4px solid var(--red);border-radius:12px;background:linear-gradient(180deg,var(--panel-2),var(--panel));padding:12px 13px;text-decoration:none;color:inherit}
+.hotcard .num{text-align:center;flex:none}.hotcard .v{font:700 23px var(--mono);color:var(--red);line-height:1}
+.hotcard .l{font:8px var(--mono);letter-spacing:.06em;color:var(--ink-faint);text-transform:uppercase;margin-top:3px;display:block}
+.hotcard .t{font-size:12.5px}.hotcard .t b{color:var(--ink-faint);font:600 10px var(--mono);display:block;margin-top:4px}
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.mapcard{cursor:pointer;text-align:left;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:13px;background:var(--panel);padding:14px 15px;color:inherit;font-family:var(--sans)}
+.mapcard .mh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.mapcard h3{margin:0;font-size:15.5px;color:var(--ink)}.mapcard .cnt{font:11px var(--mono);color:var(--ink-faint)}
+.mapcard p{margin:0;font-size:12.5px;color:var(--ink-dim)}.mapcard .go{font:11px var(--mono);color:var(--accent);margin-top:9px;display:inline-block}
+.thead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.thead h2{margin:0;font-size:24px;border-left:5px solid var(--accent);padding-left:12px}
+.thead .badge{font:11px var(--mono);color:var(--ink-dim);border:1px solid var(--line);border-radius:20px;padding:3px 10px}
+.summary{color:var(--ink-dim);font-size:14.5px;margin:0 0 11px;max-width:90ch}.summary b{color:var(--ink)}
+.angle{display:flex;gap:10px;align-items:flex-start;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);border-radius:11px;padding:10px 14px;margin:0 0 18px;max-width:90ch}
+.angle .tag{font:10px var(--mono);letter-spacing:.1em;color:var(--accent);text-transform:uppercase;flex:none;padding-top:2px}
+.angle p{margin:0;font-size:13.5px;color:var(--ink)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;align-items:start}
+.card{border:1px solid var(--line);border-left:4px solid var(--e,var(--line));border-radius:13px;background:var(--panel);padding:11px 12px;display:flex;flex-direction:column;gap:9px}
+.rage{--e:var(--rage)}.side{--e:var(--side)}.neu{--e:var(--neu)}
+.lbls{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.st{font:700 11.5px var(--sans);padding:3px 9px;border-radius:7px;white-space:nowrap}
+.st-rage{color:#ffdada;background:rgba(255,82,82,.22);border:1px solid rgba(255,82,82,.45)}
+.st-side{color:#c8f7de;background:rgba(75,208,139,.18);border:1px solid rgba(75,208,139,.4)}
+.st-neu{color:var(--ink-dim);background:rgba(132,147,166,.16);border:1px solid var(--line-2)}
+.vs{font:700 11px var(--mono);color:var(--ink);white-space:nowrap}.vs small{color:var(--ink-faint);font-weight:400}
+.src{font:600 11px var(--sans);white-space:nowrap}
+.src.ok{color:#7fe0ac}.src.official{color:#8cc6ff}.src.warn{color:#ff8f8f}.src.osint{color:#ffcf8a}.src.state{color:#ff9f7a}.src.op{color:var(--ink-dim)}
+.card .twitter-tweet{margin:0 !important}
+footer{margin-top:36px;border-top:1px solid var(--line);padding-top:15px;color:var(--ink-faint);font-size:12px}footer b{color:var(--ink-dim)}
+</style></head><body><div class="wrap">
+<div class="bar"><div class="brand"><span class="tally"></span><span><b>Liberty Politics — Show Dashboard</b><span>On-air rundown · auto-updated</span></span></div>
+<div class="clock">Auto-updated<br><b>Jul 23, 01:10 UTC</b></div></div>
+<div class="tabs" id="tabs"><button class="tabbtn active" data-tab="overview" style="--accent:#ffb02e"><span class="dot"></span>Overview</button>
+<button class="tabbtn" data-tab="hormuz" style="--accent:#5aa9ff"><span class="dot"></span>Hormuz <span class="cnt">15</span></button>
+<button class="tabbtn" data-tab="strikes" style="--accent:#ff5252"><span class="dot"></span>Strikes <span class="cnt">15</span></button>
+<button class="tabbtn" data-tab="senate" style="--accent:#4bd08b"><span class="dot"></span>Senate <span class="cnt">15</span></button>
+<button class="tabbtn" data-tab="regime" style="--accent:#ffb02e"><span class="dot"></span>Regime <span class="cnt">15</span></button>
+<button class="tabbtn" data-tab="netanyahu" style="--accent:#b98cff"><span class="dot"></span>Netanyahu <span class="cnt">15</span></button>
+<button class="tabbtn" data-tab="mamdani" style="--accent:#ff7eb6"><span class="dot"></span>Mamdani <span class="cnt">15</span></button></div>
+<div class="panel active" id="panel-overview">
+<div class="sop"><h1>State of play</h1><p>Live from X, refreshed automatically. Tap a topic tab for its clips, or a card below to jump in. Each clip is labeled with your stance, a viral score, and how much to trust the source.</p></div>
+<div class="blocktitle">🔥 Biggest clips right now</div><div class="hot"><a class="hotcard" href="https://x.com/MarioNawfal/status/2080087817632264553" target="_blank" rel="noopener"><span class="num"><span class="v">99</span><span class="l">viral</span></span><span class="t">⬜ Neutral — top clip<b>HORMUZ</b></span></a><a class="hotcard" href="https://x.com/RT_com/status/2080093110957133874" target="_blank" rel="noopener"><span class="num"><span class="v">99</span><span class="l">viral</span></span><span class="t">🟥 Argue against — top clip<b>HORMUZ</b></span></a><a class="hotcard" href="https://x.com/MarioNawfal/status/2080096373538439412" target="_blank" rel="noopener"><span class="num"><span class="v">99</span><span class="l">viral</span></span><span class="t">🟩 Your side — top clip<b>STRIKES</b></span></a></div>
+<div class="blocktitle">📁 The topics — tap one to open it</div><div class="map"><button class="mapcard gotab" data-tab="hormuz" style="--accent:#5aa9ff"><div class="mh"><h3>Naval War &amp; the Strait of Hormuz</h3><span class="cnt">15 clips</span></div><p>Iran claims it controls the strait; CENTCOM and Rubio flatly reject that. Trump threatened…</p><span class="go">Open →</span></button>
+<button class="mapcard gotab" data-tab="strikes" style="--accent:#ff5252"><div class="mh"><h3>US Strikes &amp; Escalation</h3><span class="cnt">15 clips</span></div><p>The strike map keeps widening: ships, then IRGC bases, then water plants. The info war is …</p><span class="go">Open →</span></button>
+<button class="mapcard gotab" data-tab="senate" style="--accent:#4bd08b"><div class="mh"><h3>The Senate Reckoning</h3><span class="cnt">15 clips</span></div><p>Hegseth asked for $87.6B more after admitting the war cost $37.5B. Anti-war senators and p…</p><span class="go">Open →</span></button>
+<button class="mapcard gotab" data-tab="regime" style="--accent:#ffb02e"><div class="mh"><h3>Iran's Regime &amp; the Opposition</h3><span class="cnt">15 clips</span></div><p>The regime and its IRGC broadcast defiance and brag about operations. Against that, the op…</p><span class="go">Open →</span></button>
+<button class="mapcard gotab" data-tab="netanyahu" style="--accent:#b98cff"><div class="mh"><h3>Netanyahu &amp; the "Days From a Nuke" Claim</h3><span class="cnt">15 clips</span></div><p>Anti-war voices are resurfacing old clips of Netanyahu predicting an imminent Iranian bomb…</p><span class="go">Open →</span></button>
+<button class="mapcard gotab" data-tab="mamdani" style="--accent:#ff7eb6"><div class="mh"><h3>Mamdani, the ICC &amp; the Arrest Fight</h3><span class="cnt">15 clips</span></div><p>The war's biggest domestic story. Mayor Mamdani called Netanyahu a war criminal and urged …</p><span class="go">Open →</span></button></div>
 </div>
-
+<div class="panel" id="panel-hormuz" style="--accent:#5aa9ff">
+<div class="thead"><h2>Naval War &amp; the Strait of Hormuz</h2><span class="badge">15 clips</span></div>
+<p class="summary">Iran claims it controls the strait; CENTCOM and Rubio flatly reject that. Trump threatened Iran's bridges and power plants, then said the US doesn't need the strait anyway. Ship traffic is collapsing; oil keeps climbing.</p>
+<div class="angle"><span class="tag">Your angle</span><p>Play CENTCOM's and Rubio's line against the regime's claim, and flag Trump's contradiction. Watch the RT clips: that's the regime framing to rebut.</p></div>
+<div class="cards"><div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 99<small>/100 exploding</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/MarioNawfal/status/2080087817632264553"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 99<small>/100 exploding</small></span><span class="src state">🏴 State/regime propaganda</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RT_com/status/2080093110957133874"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 8<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/5dme81/status/2080090111325196770"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Melenia_T_Rv/status/2080084203559850115"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/ABCWorldNews/status/2080096299467026752"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/shanaka86/status/2080095332013310163"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/realTrentLeisy/status/2080086099570110868"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Qrightscopee/status/2080094760925040752"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/q_offical_web/status/2080091926015975641"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/realTrentLeisy/status/2080088514281234553"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Kenned5hhvJr/status/2080084489259139453"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/JackCleverx0/status/2080097297648513145"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/WNewsRankX/status/2080096943519482031"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/warroomearth/status/2080096804746453284"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/JackCleverx0/status/2080096676191109610"></a></blockquote></div></div></div>
+<div class="panel" id="panel-strikes" style="--accent:#ff5252">
+<div class="thead"><h2>US Strikes &amp; Escalation</h2><span class="badge">15 clips</span></div>
+<p class="summary">The strike map keeps widening: ships, then IRGC bases, then water plants. The info war is just as hot, with the biggest 'battle damage' clips coming from hype accounts with unconfirmed numbers.</p>
+<div class="angle"><span class="tag">Your angle</span><p>Cheer the real hits on the IRGC, but separate them from the disinfo. Flag the hype accounts (marked 'don't trust') live.</p></div>
+<div class="cards"><div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 99<small>/100 exploding</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/MarioNawfal/status/2080096373538439412"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 72<small>/100 hot</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/GlobalOsintNew/status/2080094421995901110"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 52<small>/100 rising</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/officialrnintel/status/2080096007413748084"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 48<small>/100 rising</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/GlobalOsintNew/status/2080092244632113257"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 40<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/InsidConflict/status/2080093740644073641"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 24<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/WNewsRankX/status/2080095770196484400"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 20<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/WNewsRankX/status/2080095005340004409"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 12<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/ABCWorldNews/status/2080096299467026752"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 12<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/WNewsRankX/status/2080095850194522463"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 12<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/balayat_hossan/status/2080093838983791067"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 8<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/WNewsRankX/status/2080096085222269406"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 8<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/shanaka86/status/2080095332013310163"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/GlobalOSINTHQ/status/2080096109171499374"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/OSINTNewsqrb/status/2080095832288764054"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Qrightscopee/status/2080094760925040752"></a></blockquote></div></div></div>
+<div class="panel" id="panel-senate" style="--accent:#4bd08b">
+<div class="thead"><h2>The Senate Reckoning</h2><span class="badge">15 clips</span></div>
+<p class="summary">Hegseth asked for $87.6B more after admitting the war cost $37.5B. Anti-war senators and protesters push the 'US war crimes' framing, the narrative your show exists to rebut.</p>
+<div class="angle"><span class="tag">Your angle</span><p>Rebut the war-crime / 'stop bombing' framing: the regime is the villain. Straight GOP oversight is fair game (neutral); the anti-war framing is not.</p></div>
+<div class="cards"><div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 99<small>/100 exploding</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/greendragonhq/status/2080091264154849671"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 89<small>/100 hot</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/TrumpGirlLove/status/2080077417012433000"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 48<small>/100 rising</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/SenateDems/status/2080062553481187677"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 38<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/MeidasClips/status/2080067499882693105"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 25<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Rep_McBride/status/2080069581767426136"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 20<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/lesleyabravanel/status/2080064171601764810"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 14<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/lesleyabravanel/status/2080064387650318640"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 12<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Rose96898367983/status/2080089745884065891"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 7<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/davidpakmanshow/status/2080061576812372090"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 7<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/CBSEveningNews/status/2080061865183326573"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 7<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/IvankaTrumpUSRV/status/2080080387489829171"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Trumpusa1A1/status/2080087345232322718"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/DailyWaonline/status/2080095985007497727"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/caseythehost/status/2080055830846525488"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/desota/status/2080069659684937891"></a></blockquote></div></div></div>
+<div class="panel" id="panel-regime" style="--accent:#ffb02e">
+<div class="thead"><h2>Iran's Regime &amp; the Opposition</h2><span class="badge">15 clips</span></div>
+<p class="summary">The regime and its IRGC broadcast defiance and brag about operations. Against that, the opposition (Reza Pahlavi) appeals directly to Iranians.</p>
+<div class="angle"><span class="tag">Your angle</span><p>Good-vs-evil segment: regime/IRGC propaganda to tear apart, opposition to amplify. Regime accounts are flagged 'propaganda'.</p></div>
+<div class="cards"><div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 99<small>/100 exploding</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/glennbeck/status/2080095460732314104"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 96<small>/100 exploding</small></span><span class="src state">🏴 State/regime propaganda</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RT_com/status/2080086731232014460"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 71<small>/100 hot</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/DropSiteNews/status/2080084938976604524"></a></blockquote></div>
+<div class="card side"><div class="lbls"><span class="st st-side">🟩 Your side</span><span class="vs">🔥 27<small>/100 quiet</small></span><span class="src warn">⚠️ Don't trust — hype</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/usairforce_x/status/2080078544978501877"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 27<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/MarioNawfal/status/2080085046371770801"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 26<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/0LexieUSA/status/2080072211537272882"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 23<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/MarioNawfal/status/2080096373538439412"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 15<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Truthtellerftm/status/2080078783076262145"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 12<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/5dme81/status/2080078749018587435"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/UCCavalier/status/2080088829650735200"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/LEXIEEMPIREUSA/status/2080077714648662399"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/InsidConflict/status/2080090607289245973"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/A_M_R_M1/status/2080075732852551789"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/balayat_hossan/status/2080093838983791067"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/shanaka86/status/2080095332013310163"></a></blockquote></div></div></div>
+<div class="panel" id="panel-netanyahu" style="--accent:#b98cff">
+<div class="thead"><h2>Netanyahu &amp; the "Days From a Nuke" Claim</h2><span class="badge">15 clips</span></div>
+<p class="summary">Anti-war voices are resurfacing old clips of Netanyahu predicting an imminent Iranian bomb, going back 30 years, to discredit the case against the regime.</p>
+<div class="angle"><span class="tag">Your angle</span><p>Rebut the 'boy who cried nuke' line: mocking Netanyahu doesn't make the regime less dangerous. Bait to undermine pressure on the Islamic Republic.</p></div>
+<div class="cards"><div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 99<small>/100 exploding</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/glennbeck/status/2079995718505472486"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 65<small>/100 rising</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/AlinejadMasih/status/2080043276984275091"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 33<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Persianserene1/status/2080011976298705048"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 12<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RyanRozbiani/status/2080060045723668534"></a></blockquote></div>
+<div class="card neu"><div class="lbls"><span class="st st-neu">⬜ Neutral</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src state">🏴 State/regime propaganda</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/RT_on_X/status/2080056816872853558"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Loveof1776/status/2079966890332438853"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Israeldefences/status/2079968860015604022"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/clashreport/status/2080027416672485807"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/TheDemSlayer/status/2080025452878655523"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/thehoffather/status/2079972687859032541"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/YuvalDavid/status/2080082947550412896"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/MichaelARothman/status/2080033532949483829"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/Pahlavist091339/status/2080022481100804108"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/MichaelARothman/status/2079991817584759146"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/leetrink/status/2080020709955576054"></a></blockquote></div></div></div>
+<div class="panel" id="panel-mamdani" style="--accent:#ff7eb6">
+<div class="thead"><h2>Mamdani, the ICC &amp; the Arrest Fight</h2><span class="badge">15 clips</span></div>
+<p class="summary">The war's biggest domestic story. Mayor Mamdani called Netanyahu a war criminal and urged the feds to execute the ICC warrant. Trump shut it down; Israel's UN ambassador said Mamdani should be arrested.</p>
+<div class="angle"><span class="tag">Your angle</span><p>Your lane exactly: Mamdani siding against the man fighting the Islamic Republic. Amplify Danon's and Trump's pushback; rebut the 'war criminal' framing.</p></div>
+<div class="cards"><div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 99<small>/100 exploding</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/FoxNews/status/2080096230558867632"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 56<small>/100 rising</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/marcthiessen/status/2080091176158253470"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 14<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/ViralReelAddict/status/2080081551304392747"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 13<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/hurusDih/status/2080081477606179177"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/californiapost/status/2080095886810689621"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/ilbannay/status/2080091986581729403"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/TMTonightShow/status/2080090142602068118"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/TMTonightShow/status/2080089163387240498"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/gregonfire/status/2080095649354129624"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/EpsteinJeffrey0/status/2080089012052930723"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/NicholasBallasy/status/2080078348827423064"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/FuckTokyo2021/status/2080087035663241355"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/JustRightPD/status/2080092970053718050"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/EpsteinJeffrey0/status/2080089593387569367"></a></blockquote></div>
+<div class="card rage"><div class="lbls"><span class="st st-rage">🟥 Argue against</span><span class="vs">🔥 6<small>/100 quiet</small></span><span class="src op">🗣️ Opinion / commentary</span></div>
+<blockquote class="twitter-tweet" data-theme="dark" data-dnt="true"><a href="https://twitter.com/EpsteinJeffrey0/status/2080089143393292361"></a></blockquote></div></div></div>
+<footer><b>Auto-updated from the X API.</b> Viral score = how fast a clip is spreading (engagement ÷ hours live). Stance is from your show's positions. Source = how much to trust it. Labels for known accounts are precise; unknown accounts default to neutral/opinion until reviewed.</footer>
+</div>
 <script>
-  function show(id){
-    document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active', p.id==='panel-'+id);});
-    document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.toggle('active', b.dataset.tab===id);});
-    var t=document.getElementById('tabs'); if(t) t.scrollIntoView({block:'start'});
-    if(window.twttr && window.twttr.widgets){ window.twttr.widgets.load(document.getElementById('panel-'+id)); }
-  }
-  document.querySelectorAll('.tabbtn, .gotab').forEach(function(b){
-    b.addEventListener('click', function(){ show(b.dataset.tab); });
-  });
-</script>
-</body>
-</html>
+function show(id){document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p.id==='panel-'+id)});document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.toggle('active',b.dataset.tab===id)});var t=document.getElementById('tabs');if(t)t.scrollIntoView({block:'start'});if(window.twttr&&window.twttr.widgets)window.twttr.widgets.load(document.getElementById('panel-'+id));}
+document.querySelectorAll('.tabbtn,.gotab').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.tab)})});
+</script></body></html>
