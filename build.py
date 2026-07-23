@@ -12,9 +12,20 @@ import os, sys, json, time, urllib.parse, urllib.request, datetime
 
 TOKEN = os.environ.get("X_BEARER_TOKEN", "").strip()
 SEARCH_URL = "https://api.twitter.com/2/tweets/search/recent"
-PER_TOPIC = 15
+PER_TOPIC = 18            # aim ~18 per topic
+PER_STANCE = 7            # aim up to this many of each: for / against / neutral
+LIKE_MIN = 1000          # only clips with thousands of likes
+FETCH = 100              # pull a big pool per topic, then filter hard
 MIN_TOTAL_TO_PUBLISH = 12
 REPO = "Armishkana/liberty-dashboard"
+
+# content keywords -> stance, aligned to areas/armin-views.md (used when the account is unknown)
+FOR_KW = ["regime change", "free iran", "reza pahlavi", " pahlavi", "woman life freedom",
+          "woman, life, freedom", "mahsa", "down with khamenei", "death to khamenei",
+          "down with the regime", "iranians rise", "long live"]
+AGAINST_KW = ["war criminal", "genocide", "free palestine", "stop bombing", "illegal war",
+              "no war", "ceasefire now", "anti-war", "zionist", "quincy", "apartheid",
+              "from the river", "stop the war", "hands off iran"]
 
 TOPICS = [
     dict(id="hormuz", name="Naval War &amp; the Strait of Hormuz", accent="#5aa9ff",
@@ -82,9 +93,23 @@ def api_get(query, max_results=30):
         return json.loads(r.read().decode("utf-8"))
 
 
+def classify(text, uname, topic):
+    """Return (stance, credibility). Known account wins; else read the text."""
+    if uname in ACCOUNTS:
+        return ACCOUNTS[uname]
+    t = (text or "").lower()
+    for_sig = any(k in t for k in FOR_KW)
+    against_sig = any(k in t for k in AGAINST_KW)
+    if for_sig and not against_sig:
+        return ("side", "op")
+    if against_sig and not for_sig:
+        return ("rage", "op")
+    return (TOPIC_DEFAULT_STANCE.get(topic, "neu"), "op")
+
+
 def collect_topic(t):
     try:
-        data = api_get(t["query"])
+        data = api_get(t["query"], max_results=FETCH)
     except Exception as e:
         print(f"[{t['id']}] API error: {e}", file=sys.stderr)
         return []
@@ -92,31 +117,43 @@ def collect_topic(t):
     inc = data.get("includes", {}) or {}
     users = {u["id"]: u for u in inc.get("users", [])}
     media = {m["media_key"]: m for m in inc.get("media", [])}
-    now = datetime.datetime.now(datetime.timezone.utc)
-    out = []
+    vids = []
     for tw in tweets:
         keys = (tw.get("attachments") or {}).get("media_keys", [])
         if not any(media.get(k, {}).get("type") in ("video", "animated_gif") for k in keys):
             continue
         u = users.get(tw.get("author_id"), {})
         uname = (u.get("username") or "").lower()
-        pm = tw.get("public_metrics", {}) or {}
-        try:
-            created = datetime.datetime.fromisoformat(tw["created_at"].replace("Z", "+00:00"))
-            age_h = max((now - created).total_seconds() / 3600.0, 0.5)
-        except Exception:
-            age_h = 12.0
-        eng = pm.get("like_count", 0) + 2 * pm.get("retweet_count", 0) + pm.get("quote_count", 0)
-        stance, cred = ACCOUNTS.get(uname, (TOPIC_DEFAULT_STANCE.get(t["id"], "neu"), "op"))
-        out.append(dict(id=str(tw["id"]), user=u.get("username", "i"),
-                        velocity=eng / age_h, stance=stance, cred=cred))
-    out.sort(key=lambda c: c["velocity"], reverse=True)
-    out = out[:PER_TOPIC]
-    vmax = max((c["velocity"] for c in out), default=1) or 1
-    for c in out:
-        c["viral"] = max(6, min(99, round(100 * c["velocity"] / vmax)))
-    print(f"[{t['id']}] {len(out)} video clips")
-    return out
+        likes = (tw.get("public_metrics", {}) or {}).get("like_count", 0)
+        stance, cred = classify(tw.get("text", ""), uname, t["id"])
+        vids.append(dict(id=str(tw["id"]), user=u.get("username", "i"),
+                         likes=likes, stance=stance, cred=cred))
+    vids.sort(key=lambda c: c["likes"], reverse=True)
+    # hard quality bar: only thousands of likes. If too few, relax to top-by-likes so the page still fills.
+    strong = [c for c in vids if c["likes"] >= LIKE_MIN]
+    pool = strong if len(strong) >= 10 else vids[:PER_TOPIC + 6]
+    # balance: take up to PER_STANCE of each stance (highest-liked first), then fill by likes
+    buckets = {"side": [], "rage": [], "neu": []}
+    for c in pool:
+        buckets[c["stance"]].append(c)
+    picked, seen = [], set()
+    for st in ("side", "neu", "rage"):
+        for c in buckets[st][:PER_STANCE]:
+            picked.append(c); seen.add(c["id"])
+    if len(picked) < PER_TOPIC:
+        for c in pool:
+            if c["id"] not in seen:
+                picked.append(c); seen.add(c["id"])
+                if len(picked) >= PER_TOPIC:
+                    break
+    picked.sort(key=lambda c: c["likes"], reverse=True)
+    picked = picked[:PER_TOPIC]
+    lmax = max((c["likes"] for c in picked), default=1) or 1
+    for c in picked:
+        c["viral"] = max(6, min(99, round(100 * c["likes"] / lmax)))
+    b = {k: sum(1 for c in picked if c["stance"] == k) for k in ("side", "rage", "neu")}
+    print(f"[{t['id']}] {len(picked)} clips  (>= {LIKE_MIN} likes: {len(strong)})  for={b['side']} against={b['rage']} neutral={b['neu']}")
+    return picked
 
 
 def tier(v):
