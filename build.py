@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Liberty Politics dashboard builder.
-Runs in GitHub Actions. Pulls fresh video tweets per topic from the X API,
-scores/labels them, and regenerates index.html. Fails safe: if the API
-returns too little, it leaves the existing page untouched.
+Liberty Politics dashboard builder (runs in GitHub Actions).
+Pulls fresh video tweets per topic from the X API, scores/labels them,
+and regenerates index.html. Fails safe if the API returns too little.
 
-Features: lazy-loaded embeds (fast open), per-clip up/down votes + a feedback
-box (stored in the viewer's browser; "Copy for Claude" compiles it to paste).
+Feedback loop: per-clip up/down votes + optional "why", plus a Send button
+that files a GitHub issue (which Claude reads) so feedback reaches Claude
+directly - no copy/paste - and includes which tab it came from.
 """
 import os, sys, json, time, urllib.parse, urllib.request, datetime
 
@@ -14,6 +14,7 @@ TOKEN = os.environ.get("X_BEARER_TOKEN", "").strip()
 SEARCH_URL = "https://api.twitter.com/2/tweets/search/recent"
 PER_TOPIC = 15
 MIN_TOTAL_TO_PUBLISH = 12
+REPO = "Armishkana/liberty-dashboard"
 
 TOPICS = [
     dict(id="hormuz", name="Naval War &amp; the Strait of Hormuz", accent="#5aa9ff",
@@ -31,7 +32,7 @@ TOPICS = [
     dict(id="regime", name="Iran's Regime &amp; the Opposition", accent="#ffb02e",
          query='(Khamenei OR "Islamic Republic" OR IRGC OR Tasnim OR Pahlavi OR opposition) (Iran OR regime OR Iranians) has:videos -is:retweet lang:en',
          summary="The regime and its IRGC broadcast defiance and brag about operations. Against that, the opposition (Reza Pahlavi) appeals directly to Iranians.",
-         angle="Good-vs-evil segment: regime/IRGC propaganda to tear apart, opposition to amplify. Regime accounts are flagged 'propaganda'."),
+         angle="Good-vs-evil segment: regime/IRGC propaganda to tear apart, opposition (Pahlavi) to amplify. Regime accounts are flagged 'propaganda'."),
     dict(id="netanyahu", name='Netanyahu &amp; the "Days From a Nuke" Claim', accent="#b98cff",
          query='Netanyahu (Iran OR nuclear OR nuke OR bomb OR weapon) has:videos -is:retweet lang:en',
          summary="Anti-war voices are resurfacing old clips of Netanyahu predicting an imminent Iranian bomb, going back 30 years, to discredit the case against the regime.",
@@ -43,7 +44,7 @@ TOPICS = [
 ]
 
 ACCOUNTS = {
-    "rt_com": ("rage", "state"), "rt_on_x": ("neu", "state"),
+    "rt_com": ("rage", "state"), "rt_on_x": ("rage", "state"),
     "tasnimnews_en": ("rage", "state"), "irgc_press": ("rage", "state"),
     "presstv": ("rage", "state"), "iranintl_en": ("side", "ok"),
     "pahlavireza": ("side", "op"),
@@ -122,7 +123,7 @@ def tier(v):
     return "exploding" if v >= 90 else "hot" if v >= 70 else "rising" if v >= 45 else "quiet"
 
 
-def card_html(c):
+def card_html(c, topic):
     slabel, scls, ecls = STANCE_LABEL[c["stance"]]
     clabel, ccls = CRED_LABEL[c["cred"]]
     return (f'<div class="card {ecls}">'
@@ -130,9 +131,11 @@ def card_html(c):
             f'<span class="vs">&#128293; {c["viral"]}<small>/100 {tier(c["viral"])}</small></span>'
             f'<span class="src {ccls}">{clabel}</span></div>'
             f'<div class="tw" data-id="{c["id"]}"></div>'
-            f'<div class="vote" data-id="{c["id"]}">'
+            f'<div class="vote" data-id="{c["id"]}" data-topic="{topic}">'
             f'<button class="up" data-v="1" data-id="{c["id"]}">&#128077; Good</button>'
-            f'<button class="down" data-v="-1" data-id="{c["id"]}">&#128078; Not this</button></div></div>')
+            f'<button class="down" data-v="-1" data-id="{c["id"]}">&#128078; Not this</button></div>'
+            f'<textarea class="why" data-id="{c["id"]}" placeholder="why? (optional - helps me learn your taste)"></textarea>'
+            f'</div>')
 
 
 def build_page(topics_data):
@@ -142,16 +145,21 @@ def build_page(topics_data):
     allc.sort(key=lambda x: x[1]["viral"], reverse=True)
     hot = ""
     for tid, c in allc[:3]:
-        s = STANCE_LABEL[c["stance"]][0]
-        hot += (f'<a class="hotcard" href="https://x.com/{c["user"]}/status/{c["id"]}" target="_blank" rel="noopener">'
-                f'<span class="num"><span class="v">{c["viral"]}</span><span class="l">viral</span></span>'
-                f'<span class="t">{s} &mdash; top clip<b>{tid.upper()}</b></span></a>')
+        slabel, scls, _ = STANCE_LABEL[c["stance"]]
+        hot += (f'<div class="hotcard">'
+                f'<div class="hh"><span class="hv">{c["viral"]}<small>viral</small></span>'
+                f'<span class="hl st {scls}">{slabel}</span><span class="ht">{tid.upper()}</span></div>'
+                f'<div class="tw" data-id="{c["id"]}"></div>'
+                f'<div class="vote" data-id="{c["id"]}" data-topic="{tid}">'
+                f'<button class="up" data-v="1" data-id="{c["id"]}">&#128077; Good</button>'
+                f'<button class="down" data-v="-1" data-id="{c["id"]}">&#128078; Not this</button></div>'
+                f'<textarea class="why" data-id="{c["id"]}" placeholder="why? (optional)"></textarea></div>')
     for t in TOPICS:
         cs = topics_data.get(t["id"], [])
         n = len(cs)
         tabs.append(f'<button class="tabbtn" data-tab="{t["id"]}" style="--accent:{t["accent"]}"><span class="dot"></span>{t["id"].capitalize()} <span class="cnt">{n}</span></button>')
         maps.append(f'<button class="mapcard gotab" data-tab="{t["id"]}" style="--accent:{t["accent"]}"><div class="mh"><h3>{t["name"]}</h3><span class="cnt">{n} clips</span></div><p>{t["summary"][:90]}&hellip;</p><span class="go">Open &rarr;</span></button>')
-        cards = "".join(card_html(c) for c in cs) or '<p style="color:#6c7a8b">No fresh clips right now &mdash; check back after the next refresh.</p>'
+        cards = "".join(card_html(c, t["id"]) for c in cs) or '<p style="color:#6c7a8b">No fresh clips right now &mdash; check back after the next refresh.</p>'
         panels.append(f'<div class="panel" id="panel-{t["id"]}" style="--accent:{t["accent"]}">'
                       f'<div class="thead"><h2>{t["name"]}</h2><span class="badge">{n} clips</span></div>'
                       f'<p class="summary">{t["summary"]}</p>'
@@ -160,7 +168,7 @@ def build_page(topics_data):
     page = PAGE_TEMPLATE
     page = page.replace("%%STAMP%%", stamp).replace("%%TABS%%", "".join(tabs))
     page = page.replace("%%HOT%%", hot).replace("%%MAPS%%", "".join(maps))
-    page = page.replace("%%PANELS%%", "".join(panels))
+    page = page.replace("%%PANELS%%", "".join(panels)).replace("%%REPO%%", REPO)
     return page
 
 
@@ -187,11 +195,11 @@ body{color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoot
 .sop h1{margin:0 0 7px;font:600 12px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:#ffb02e}
 .sop p{margin:0;font-size:15px;color:var(--ink-dim)}.sop b{color:var(--ink)}
 .blocktitle{font:10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);margin:22px 2px 10px}
-.hot{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
-.hotcard{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-left:4px solid var(--red);border-radius:12px;background:linear-gradient(180deg,var(--panel-2),var(--panel));padding:12px 13px;text-decoration:none;color:inherit}
-.hotcard .num{text-align:center;flex:none}.hotcard .v{font:700 23px var(--mono);color:var(--red);line-height:1}
-.hotcard .l{font:8px var(--mono);letter-spacing:.06em;color:var(--ink-faint);text-transform:uppercase;margin-top:3px;display:block}
-.hotcard .t{font-size:12.5px}.hotcard .t b{color:var(--ink-faint);font:600 10px var(--mono);display:block;margin-top:4px}
+.hot{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.hotcard{border:1px solid var(--line);border-left:4px solid var(--red);border-radius:13px;background:var(--panel);padding:11px 12px;display:flex;flex-direction:column;gap:9px}
+.hh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hv{font:700 22px var(--mono);color:var(--red);line-height:1}.hv small{font:8px var(--mono);color:var(--ink-faint);text-transform:uppercase;margin-left:3px}
+.ht{font:10px var(--mono);color:var(--ink-faint);margin-left:auto}
 .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
 .mapcard{cursor:pointer;text-align:left;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:13px;background:var(--panel);padding:14px 15px;color:inherit;font-family:var(--sans)}
 .mapcard .mh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
@@ -215,68 +223,70 @@ body{color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoot
 .vs{font:700 11px var(--mono);color:var(--ink);white-space:nowrap}.vs small{color:var(--ink-faint);font-weight:400}
 .src{font:600 11px var(--sans);white-space:nowrap}
 .src.ok{color:#7fe0ac}.src.official{color:#8cc6ff}.src.warn{color:#ff8f8f}.src.osint{color:#ffcf8a}.src.state{color:#ff9f7a}.src.op{color:var(--ink-dim)}
-.tw{min-height:60px}.tw .twitter-tweet{margin:0 !important}
+.tw{min-height:50px}.tw .twitter-tweet{margin:0 !important}
 .tw.loading::before{content:"loading video...";color:var(--ink-faint);font:11px var(--mono);display:block;padding:8px 2px}
 .vote{display:flex;gap:8px}
 .vote button{cursor:pointer;flex:1;font:600 12px var(--sans);color:var(--ink-dim);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
 .vote button:hover{color:var(--ink)}
 .vote button.on-up{color:#c8f7de;border-color:var(--side);background:rgba(75,208,139,.16)}
 .vote button.on-down{color:#ffdada;border-color:var(--red);background:rgba(255,82,82,.16)}
+.why{display:none;width:100%;height:52px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px;font:12.5px var(--sans);resize:vertical}
+.why.show{display:block}
 footer{margin-top:36px;border-top:1px solid var(--line);padding-top:15px;color:var(--ink-faint);font-size:12px}footer b{color:var(--ink-dim)}
-/* feedback */
 .fbtn{position:fixed;right:18px;bottom:18px;z-index:60;cursor:pointer;font:700 13px var(--sans);color:#0b0e13;background:#ffb02e;border:none;border-radius:999px;padding:11px 16px;box-shadow:0 6px 20px rgba(0,0,0,.5)}
-.fpanel{position:fixed;right:18px;bottom:66px;z-index:60;width:min(340px,92vw);background:var(--panel);border:1px solid var(--line-2);border-radius:14px;padding:14px;display:none;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.fpanel{position:fixed;right:18px;bottom:66px;z-index:60;width:min(360px,92vw);background:var(--panel);border:1px solid var(--line-2);border-radius:14px;padding:14px;display:none;box-shadow:0 10px 30px rgba(0,0,0,.6)}
 .fpanel.open{display:block}
-.fpanel h4{margin:0 0 4px;font-size:14px}
-.fpanel p{margin:0 0 8px;font-size:11.5px;color:var(--ink-faint)}
-.fpanel textarea{width:100%;height:90px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:13px var(--sans);resize:vertical}
+.fpanel h4{margin:0 0 4px;font-size:14px}.fpanel p{margin:0 0 8px;font-size:11.5px;color:var(--ink-faint)}
+.fpanel textarea{width:100%;height:80px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:13px var(--sans);resize:vertical}
 .fpanel .frow{display:flex;gap:8px;margin-top:9px}
 .fpanel button{cursor:pointer;flex:1;font:700 12px var(--sans);border-radius:8px;padding:9px;border:1px solid var(--line)}
-.fpanel .copy{color:#0b0e13;background:#ffb02e;border:none}.fpanel .close{color:var(--ink-dim);background:var(--panel-2)}
+.fpanel .send{color:#0b0e13;background:#ffb02e;border:none}.fpanel .close{color:var(--ink-dim);background:var(--panel-2)}
 .fcount{font:11px var(--mono);color:var(--ink-faint);margin-top:8px}
 </style></head><body><div class="wrap">
 <div class="bar"><div class="brand"><span class="tally"></span><span><b>Liberty Politics - Show Dashboard</b><span>On-air rundown - auto-updated</span></span></div>
 <div class="clock">Auto-updated<br><b>%%STAMP%%</b></div></div>
 <div class="tabs" id="tabs"><button class="tabbtn active" data-tab="overview" style="--accent:#ffb02e"><span class="dot"></span>Overview</button>%%TABS%%</div>
 <div class="panel active" id="panel-overview">
-<div class="sop"><h1>State of play</h1><p>Live from X, refreshed automatically. Tap a topic tab for its clips, or a card below to jump in. Rate clips with the thumbs so I learn what you like. Each clip is labeled with your stance, a viral score, and how much to trust the source.</p></div>
-<div class="blocktitle">Biggest clips right now</div><div class="hot">%%HOT%%</div>
+<div class="sop"><h1>State of play</h1><p>Live from X, refreshed automatically. Tap a topic tab for its clips, or a card below to jump in. Rate clips with the thumbs (and say why) so I learn what you like, then hit the Feedback button to send it to me. Each clip is labeled with your stance, a viral score, and how much to trust the source.</p></div>
+<div class="blocktitle">Biggest clips right now (playable)</div><div class="hot" id="hotwrap">%%HOT%%</div>
 <div class="blocktitle">The topics - tap one to open it</div><div class="map">%%MAPS%%</div>
 </div>
 %%PANELS%%
-<footer><b>Auto-updated from the X API.</b> Viral score = how fast a clip is spreading (engagement / hours live). Stance is from your show's positions. Source = how much to trust it. Known accounts are labeled precisely; unknown accounts default to neutral/opinion until reviewed. Videos load when you open a tab, so first open is fast.</footer>
+<footer><b>Auto-updated from the X API.</b> Viral score = how fast a clip is spreading. Stance is from your show's positions. Source = how much to trust it. Videos load when you open a tab, so first open is fast.</footer>
 </div>
 <button class="fbtn" id="fbtn">&#128172; Feedback</button>
 <div class="fpanel" id="fpanel">
-<h4>Feedback for Claude</h4>
-<p>Your thumbs-up/down on clips are saved automatically. Add any notes on the design or what to change, then Copy and paste it into your chat with Claude.</p>
-<textarea id="ftext" placeholder="e.g. the Senate tab has too much anti-war stuff, or make the cards bigger..."></textarea>
+<h4>Send feedback to Claude</h4>
+<p>Your thumbs + reasons are saved as you go. Add any overall notes, then Send - it goes straight to me (as a GitHub note), no copy-paste, and tells me which tab you were on.</p>
+<textarea id="ftext" placeholder="e.g. Senate tab is too anti-war, make cards bigger, wrong stance on X..."></textarea>
 <div class="fcount" id="fcount"></div>
-<div class="frow"><button class="copy" id="fcopy">Copy for Claude</button><button class="close" id="fclose">Close</button></div>
+<div class="frow"><button class="send" id="fsend">Send to Claude</button><button class="close" id="fclose">Close</button></div>
 </div>
 <script>
-var LS=window.localStorage;
-function getVotes(){try{return JSON.parse(LS.getItem('lp_votes')||'{}')}catch(e){return {}}}
-function setVotes(v){LS.setItem('lp_votes',JSON.stringify(v))}
-function paintVotes(){var v=getVotes();document.querySelectorAll('.vote').forEach(function(box){var id=box.dataset.id;var val=v[id];box.querySelector('.up').classList.toggle('on-up',val===1);box.querySelector('.down').classList.toggle('on-down',val===-1);});updCount();}
-function updCount(){var v=getVotes();var up=0,dn=0;for(var k in v){if(v[k]===1)up++;if(v[k]===-1)dn++;}var el=document.getElementById('fcount');if(el)el.textContent=up+' liked, '+dn+' disliked so far';}
-document.addEventListener('click',function(e){var b=e.target.closest('.vote button');if(!b)return;var id=b.dataset.id,val=parseInt(b.dataset.v,10);var v=getVotes();v[id]=(v[id]===val)?0:val;if(v[id]===0)delete v[id];setVotes(v);paintVotes();});
+var LS=window.localStorage,REPO="%%REPO%%",curTab="overview";
+function getV(){try{return JSON.parse(LS.getItem('lp_v2')||'{}')}catch(e){return {}}}
+function setV(v){LS.setItem('lp_v2',JSON.stringify(v))}
+function paint(){var v=getV();document.querySelectorAll('.vote').forEach(function(box){var id=box.dataset.id,o=v[id]||{};box.querySelector('.up').classList.toggle('on-up',o.v===1);box.querySelector('.down').classList.toggle('on-down',o.v===-1);});
+document.querySelectorAll('.why').forEach(function(w){var o=v[w.dataset.id];if(o&&o.v){w.classList.add('show');if(o.why!==undefined&&w.value==='')w.value=o.why;}});count();}
+function count(){var v=getV(),up=0,dn=0;for(var k in v){if(v[k].v===1)up++;if(v[k].v===-1)dn++;}var e=document.getElementById('fcount');if(e)e.textContent=up+' liked, '+dn+' disliked so far';}
+document.addEventListener('click',function(e){var b=e.target.closest('.vote button');if(!b)return;var box=b.closest('.vote'),id=b.dataset.id,val=parseInt(b.dataset.v,10),topic=box.dataset.topic;var v=getV(),o=v[id]||{why:'',topic:topic};o.v=(o.v===val)?0:val;o.topic=topic;if(o.v===0){delete v[id];}else{v[id]=o;}setV(v);
+var w=box.parentNode.querySelector('.why');if(w){w.classList.toggle('show',!!v[id]);}paint();});
+document.addEventListener('input',function(e){var w=e.target.closest('.why');if(!w)return;var v=getV(),id=w.dataset.id;if(v[id]){v[id].why=w.value;setV(v);}});
 var loaded={};
-function loadPanel(id){var p=document.getElementById('panel-'+id);if(!p||!window.twttr||!twttr.widgets)return;p.querySelectorAll('.tw').forEach(function(el){var tid=el.dataset.id;if(loaded[tid])return;loaded[tid]=1;el.classList.add('loading');twttr.widgets.createTweet(tid,el,{theme:'dark',dnt:true,conversation:'none',align:'center'}).then(function(){el.classList.remove('loading');});});}
-function show(id){document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p.id==='panel-'+id)});document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.toggle('active',b.dataset.tab===id)});var t=document.getElementById('tabs');if(t)t.scrollIntoView({block:'start'});if(id!=='overview')loadPanel(id);}
+function render(scope){if(!window.twttr||!twttr.widgets)return;scope.querySelectorAll('.tw').forEach(function(el){var tid=el.dataset.id;if(loaded[tid])return;loaded[tid]=1;el.classList.add('loading');twttr.widgets.createTweet(tid,el,{theme:'dark',dnt:true,conversation:'none',align:'center'}).then(function(){el.classList.remove('loading');});});}
+function show(id){curTab=id;document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p.id==='panel-'+id)});document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.toggle('active',b.dataset.tab===id)});var t=document.getElementById('tabs');if(t)t.scrollIntoView({block:'start'});render(document.getElementById('panel-'+id));paint();}
 document.querySelectorAll('.tabbtn,.gotab').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.tab)})});
-// feedback panel
 var fp=document.getElementById('fpanel'),ft=document.getElementById('ftext');
 if(ft)ft.value=LS.getItem('lp_notes')||'';
-document.getElementById('fbtn').onclick=function(){fp.classList.toggle('open');updCount();};
+document.getElementById('fbtn').onclick=function(){fp.classList.toggle('open');count();};
 document.getElementById('fclose').onclick=function(){fp.classList.remove('open');};
 if(ft)ft.oninput=function(){LS.setItem('lp_notes',ft.value)};
-document.getElementById('fcopy').onclick=function(){var v=getVotes();var liked=[],dis=[];for(var k in v){if(v[k]===1)liked.push(k);if(v[k]===-1)dis.push(k);}
-var txt='DASHBOARD FEEDBACK FOR CLAUDE\n\nLiked clip IDs: '+(liked.join(', ')||'none')+'\nDisliked clip IDs: '+(dis.join(', ')||'none')+'\n\nNotes: '+(ft?ft.value:'').trim();
-navigator.clipboard.writeText(txt).then(function(){var b=document.getElementById('fcopy');b.textContent='Copied! Paste to Claude';setTimeout(function(){b.textContent='Copy for Claude'},2500);});};
-paintVotes();
-// render whichever tab is active on load (overview has no tweets)
-window.addEventListener('load',function(){setTimeout(function(){var a=document.querySelector('.tabbtn.active');if(a&&a.dataset.tab!=='overview')loadPanel(a.dataset.tab);},800);});
+document.getElementById('fsend').onclick=function(){var v=getV(),lines=[];for(var id in v){var o=v[id];lines.push((o.v===1?'GOOD':'BAD')+' | '+(o.topic||'?')+' | https://x.com/i/status/'+id+(o.why?(' | '+o.why):''));}
+var body='Tab I was on: '+curTab+'\n\nMy clip votes:\n'+(lines.join('\n')||'(none yet)')+'\n\nMy notes:\n'+(ft?ft.value:'');
+var url='https://github.com/'+REPO+'/issues/new?title='+encodeURIComponent('Dashboard feedback ('+curTab+')')+'&body='+encodeURIComponent(body)+'&labels=feedback';
+window.open(url,'_blank');};
+paint();
+window.addEventListener('load',function(){setTimeout(function(){render(document.getElementById('panel-overview'));},900);});
 </script></body></html>"""
 
 
