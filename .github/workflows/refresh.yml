@@ -1,0 +1,43 @@
+name: Refresh dashboard
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'   # every 3 hours (tune later based on credit cost)
+  workflow_dispatch: {}       # lets you (or me) trigger a run manually
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-dashboard
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: python -m pip install --quiet requests
+
+      - name: Build dashboard
+        env:
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+        run: python build.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "dashboard-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+          else
+            git commit -m "Auto-refresh dashboard [skip ci]"
+            git push
+          fi
