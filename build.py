@@ -25,7 +25,10 @@ FOR_KW = ["regime change", "free iran", "reza pahlavi", " pahlavi", "woman life 
           "down with the regime", "iranians rise", "long live"]
 AGAINST_KW = ["war criminal", "genocide", "free palestine", "stop bombing", "illegal war",
               "no war", "ceasefire now", "anti-war", "zionist", "quincy", "apartheid",
-              "from the river", "stop the war", "hands off iran"]
+              "from the river", "stop the war", "hands off iran",
+              # people/movements Armin rages against
+              "fuentes", "kasparian", "cenk", "young turks", "tucker carlson", "groyper",
+              "islamization", "islamisation", "sharia", "communist", "far-left", "far left", "woke"]
 
 TOPICS = [
     dict(id="hormuz", name="Naval War &amp; the Strait of Hormuz", accent="#5aa9ff",
@@ -69,10 +72,19 @@ ACCOUNTS = {
     "eyakoby": ("side", "op"), "emilykschrader": ("side", "op"), "dannydanon": ("side", "op"),
     "israelnewspulse": ("rage", "op"), "partisan_12": ("rage", "op"),
     "owenshroyer1776": ("rage", "op"), "nothoodlum": ("rage", "op"),
-    "imperiumfirst": ("neu", "op"),
+    # accounts Armin follows / aligns with (from him, 2026-07-23)
+    "rapidresponse47": ("side", "ok"), "treyyingst": ("neu", "ok"), "memrireports": ("side", "ok"),
+    "trobinsonnewera": ("side", "op"),
+    "netanyahu": ("side", "official"), "israelipm": ("side", "official"), "idf": ("side", "official"),
+    "potus": ("side", "official"), "whitehouse": ("side", "official"), "realdonaldtrump": ("side", "official"),
+    # accounts/people Armin rages AGAINST (from him, 2026-07-23)
+    "imperiumfirst": ("rage", "op"), "realnickjfuentes": ("rage", "op"), "nickjfuentes": ("rage", "op"),
+    "annakasparian": ("rage", "op"), "cenkuygur": ("rage", "op"), "theyoungturks": ("rage", "op"),
+    "tuckercarlson": ("rage", "op"), "zohrankmamdani": ("rage", "official"),
 }
-TOPIC_DEFAULT_STANCE = {"hormuz": "neu", "strikes": "side", "senate": "neu",
-                        "regime": "rage", "netanyahu": "rage", "mamdani": "rage"}
+# When we can't tell from the account or the text, default to NEUTRAL (don't guess a side and get it wrong)
+TOPIC_DEFAULT_STANCE = {"hormuz": "neu", "strikes": "neu", "senate": "neu",
+                        "regime": "neu", "netanyahu": "neu", "mamdani": "neu"}
 STANCE_LABEL = {"rage": ("&#128997; Argue against", "st-rage", "rage"),
                 "side": ("&#128994; Your side", "st-side", "side"),
                 "neu":  ("&#11036; Neutral", "st-neu", "neu")}
@@ -166,7 +178,7 @@ def card_html(c, topic):
     clabel, ccls = CRED_LABEL[c["cred"]]
     return (f'<div class="card {ecls}">'
             f'<div class="lbls"><span class="st {scls}">{slabel}</span>'
-            f'<span class="vs">&#128293; {c["viral"]}<small>/100 {tier(c["viral"])}</small></span>'
+            f'<span class="vs">&#10084;&#65039; {c["likes"]:,}<small> likes</small></span>'
             f'<span class="src {ccls}">{clabel}</span></div>'
             f'<div class="tw" data-id="{c["id"]}"></div>'
             f'<div class="vote" data-id="{c["id"]}" data-topic="{topic}">'
@@ -185,7 +197,7 @@ def build_page(topics_data):
     for tid, c in allc[:3]:
         slabel, scls, _ = STANCE_LABEL[c["stance"]]
         hot += (f'<div class="hotcard">'
-                f'<div class="hh"><span class="hv">{c["viral"]}<small>viral</small></span>'
+                f'<div class="hh"><span class="hv">&#10084;&#65039; {c["likes"]:,}<small>likes</small></span>'
                 f'<span class="hl st {scls}">{slabel}</span><span class="ht">{tid.upper()}</span></div>'
                 f'<div class="tw" data-id="{c["id"]}"></div>'
                 f'<div class="vote" data-id="{c["id"]}" data-topic="{tid}">'
@@ -285,12 +297,12 @@ footer{margin-top:36px;border-top:1px solid var(--line);padding-top:15px;color:v
 <div class="clock">Auto-updated<br><b>%%STAMP%%</b></div></div>
 <div class="tabs" id="tabs"><button class="tabbtn active" data-tab="overview" style="--accent:#ffb02e"><span class="dot"></span>Overview</button>%%TABS%%</div>
 <div class="panel active" id="panel-overview">
-<div class="sop"><h1>State of play</h1><p>Live from X, refreshed automatically. Tap a topic tab for its clips, or a card below to jump in. Rate clips with the thumbs (and say why) so I learn what you like, then hit the Feedback button to send it to me. Each clip is labeled with your stance, a viral score, and how much to trust the source.</p></div>
+<div class="sop"><h1>State of play</h1><p>Live from X, refreshed automatically. Tap a topic tab for its clips, or a card below to jump in. Rate clips with the thumbs (and say why) so I learn what you like, then hit the Feedback button to send it to me. Each clip shows your stance, its real like count, and how much to trust the source.</p></div>
 <div class="blocktitle">Biggest clips right now (playable)</div><div class="hot" id="hotwrap">%%HOT%%</div>
 <div class="blocktitle">The topics - tap one to open it</div><div class="map">%%MAPS%%</div>
 </div>
 %%PANELS%%
-<footer><b>Auto-updated from the X API.</b> Viral score = how fast a clip is spreading. Stance is from your show's positions. Source = how much to trust it. Videos load when you open a tab, so first open is fast.</footer>
+<footer><b>Auto-updated from the X API.</b> Each clip shows its real <b>like count</b> (sorted most-liked first). Stance is from your show's positions. Source = how much to trust it. Videos load when you open a tab, so first open is fast.</footer>
 </div>
 <button class="fbtn" id="fbtn">&#128172; Feedback</button>
 <div class="fpanel" id="fpanel">
@@ -311,7 +323,8 @@ document.addEventListener('click',function(e){var b=e.target.closest('.vote butt
 var w=box.parentNode.querySelector('.why');if(w){w.classList.toggle('show',!!v[id]);}paint();});
 document.addEventListener('input',function(e){var w=e.target.closest('.why');if(!w)return;var v=getV(),id=w.dataset.id;if(v[id]){v[id].why=w.value;setV(v);}});
 var loaded={};
-function render(scope){if(!window.twttr||!twttr.widgets)return;scope.querySelectorAll('.tw').forEach(function(el){var tid=el.dataset.id;if(loaded[tid])return;loaded[tid]=1;el.classList.add('loading');twttr.widgets.createTweet(tid,el,{theme:'dark',dnt:true,conversation:'none',align:'center'}).then(function(){el.classList.remove('loading');});});}
+function fallback(el,tid){el.classList.remove('loading');el.innerHTML='<a href="https://x.com/i/status/'+tid+'" target="_blank" style="color:#5aa9ff;font-size:12.5px;text-decoration:none">Video did not embed - tap to open on X</a>';}
+function render(scope){if(!window.twttr||!twttr.widgets)return;scope.querySelectorAll('.tw').forEach(function(el){var tid=el.dataset.id;if(loaded[tid])return;loaded[tid]=1;el.classList.add('loading');twttr.widgets.createTweet(tid,el,{theme:'dark',dnt:true,conversation:'none',align:'center'}).then(function(w){el.classList.remove('loading');if(!w||!el.querySelector('iframe')){fallback(el,tid);}}).catch(function(){fallback(el,tid);});});}
 function show(id){curTab=id;document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p.id==='panel-'+id)});document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.toggle('active',b.dataset.tab===id)});var t=document.getElementById('tabs');if(t)t.scrollIntoView({block:'start'});render(document.getElementById('panel-'+id));paint();}
 document.querySelectorAll('.tabbtn,.gotab').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.tab)})});
 var fp=document.getElementById('fpanel'),ft=document.getElementById('ftext');
