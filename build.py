@@ -185,6 +185,7 @@ def card_html(c, topic):
             f'<button class="up" data-v="1" data-id="{c["id"]}">&#128077; Good</button>'
             f'<button class="down" data-v="-1" data-id="{c["id"]}">&#128078; Not this</button></div>'
             f'<textarea class="why" data-id="{c["id"]}" placeholder="why? (optional - helps me learn your taste)"></textarea>'
+            f'<a class="openx" href="https://x.com/{c["user"]}/status/{c["id"]}" target="_blank" rel="noopener">&#9654; Watch on X &#8599;</a>'
             f'</div>')
 
 
@@ -203,7 +204,8 @@ def build_page(topics_data):
                 f'<div class="vote" data-id="{c["id"]}" data-topic="{tid}">'
                 f'<button class="up" data-v="1" data-id="{c["id"]}">&#128077; Good</button>'
                 f'<button class="down" data-v="-1" data-id="{c["id"]}">&#128078; Not this</button></div>'
-                f'<textarea class="why" data-id="{c["id"]}" placeholder="why? (optional)"></textarea></div>')
+                f'<textarea class="why" data-id="{c["id"]}" placeholder="why? (optional)"></textarea>'
+                f'<a class="openx" href="https://x.com/{c["user"]}/status/{c["id"]}" target="_blank" rel="noopener">&#9654; Watch on X &#8599;</a></div>')
     for t in TOPICS:
         cs = topics_data.get(t["id"], [])
         n = len(cs)
@@ -282,6 +284,7 @@ body{color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoot
 .vote button.on-down{color:#ffdada;border-color:var(--red);background:rgba(255,82,82,.16)}
 .why{display:none;width:100%;height:52px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px;font:12.5px var(--sans);resize:vertical}
 .why.show{display:block}
+.openx{font:600 11.5px var(--sans);color:#5aa9ff;text-decoration:none;padding:2px 0}
 footer{margin-top:36px;border-top:1px solid var(--line);padding-top:15px;color:var(--ink-faint);font-size:12px}footer b{color:var(--ink-dim)}
 .fbtn{position:fixed;right:18px;bottom:18px;z-index:60;cursor:pointer;font:700 13px var(--sans);color:#0b0e13;background:#ffb02e;border:none;border-radius:999px;padding:11px 16px;box-shadow:0 6px 20px rgba(0,0,0,.5)}
 .fpanel{position:fixed;right:18px;bottom:66px;z-index:60;width:min(360px,92vw);background:var(--panel);border:1px solid var(--line-2);border-radius:14px;padding:14px;display:none;box-shadow:0 10px 30px rgba(0,0,0,.6)}
@@ -324,7 +327,7 @@ var w=box.parentNode.querySelector('.why');if(w){w.classList.toggle('show',!!v[i
 document.addEventListener('input',function(e){var w=e.target.closest('.why');if(!w)return;var v=getV(),id=w.dataset.id;if(v[id]){v[id].why=w.value;setV(v);}});
 var loaded={};
 function fallback(el,tid){el.classList.remove('loading');el.innerHTML='<a href="https://x.com/i/status/'+tid+'" target="_blank" style="color:#5aa9ff;font-size:12.5px;text-decoration:none">Video did not embed - tap to open on X</a>';}
-function render(scope){if(!window.twttr||!twttr.widgets)return;scope.querySelectorAll('.tw').forEach(function(el){var tid=el.dataset.id;if(loaded[tid])return;loaded[tid]=1;el.classList.add('loading');twttr.widgets.createTweet(tid,el,{theme:'dark',dnt:true,conversation:'none',align:'center'}).then(function(w){el.classList.remove('loading');if(!w||!el.querySelector('iframe')){fallback(el,tid);}}).catch(function(){fallback(el,tid);});});}
+function render(scope){if(!window.twttr||!twttr.widgets)return;scope.querySelectorAll('.tw').forEach(function(el){var tid=el.dataset.id;if(loaded[tid])return;loaded[tid]=1;el.classList.add('loading');twttr.widgets.createTweet(tid,el,{theme:'dark',dnt:true,conversation:'none',align:'center'}).then(function(w){el.classList.remove('loading');if(!w||!el.querySelector('iframe')){fallback(el,tid);}}).catch(function(){fallback(el,tid);});setTimeout(function(){if(!el.querySelector('iframe')&&!el.querySelector('a')){fallback(el,tid);}},7000);});}
 function show(id){curTab=id;document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p.id==='panel-'+id)});document.querySelectorAll('.tabbtn').forEach(function(b){b.classList.toggle('active',b.dataset.tab===id)});var t=document.getElementById('tabs');if(t)t.scrollIntoView({block:'start'});render(document.getElementById('panel-'+id));paint();}
 document.querySelectorAll('.tabbtn,.gotab').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.tab)})});
 var fp=document.getElementById('fpanel'),ft=document.getElementById('ftext');
