@@ -28,6 +28,7 @@ jobs:
       - name: Build dashboard
         env:
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
         run: python build.py
 
       - name: Commit and push if changed

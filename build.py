@@ -93,6 +93,72 @@ CRED_LABEL = {"ok": ("&#9989; Trusted", "ok"), "official": ("&#128202; Official"
               "osint": ("&#128993; Unconfirmed - OSINT", "osint"), "op": ("&#128483;&#65039; Opinion / commentary", "op")}
 
 
+# ---- Grok (xAI) brain: dynamic topics + accurate stance labeling. Falls back if no key. ----
+GROK_KEY = os.environ.get("XAI_API_KEY", "").strip()
+GROK_URL = "https://api.x.ai/v1/chat/completions"
+GROK_MODEL = os.environ.get("XAI_MODEL", "grok-4").strip()
+VIEWS = ("Liberty Politics is a right-leaning, anti-Islamic-Republic political show. "
+         "FOR: regime change in Iran, Reza Pahlavi and the Iranian opposition, Israel and PM Netanyahu, "
+         "US/Trump military pressure on the Iranian regime, US veterans, a secular free Iran; mostly pro-Trump. "
+         "AGAINST: the Islamic Republic/IRGC and its mouthpieces (Tasnim, PressTV, RT), Mamdani, the anti-war/"
+         "non-interventionist left (e.g. Quincy Institute), Nick Fuentes, Anna Kasparian, Cenk Uygur/TYT, Tucker Carlson, "
+         "the woke/communist left, the Islamization of the West, and regime apologists.")
+
+
+def grok_chat(system, user, live=False, timeout=60):
+    body = {"model": GROK_MODEL, "temperature": 0.2,
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
+    if live:
+        body["search_parameters"] = {"mode": "auto", "max_search_results": 15}
+    req = urllib.request.Request(GROK_URL, data=json.dumps(body).encode(),
+                                 headers={"Authorization": "Bearer " + GROK_KEY, "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        j = json.loads(r.read().decode("utf-8"))
+    return j["choices"][0]["message"]["content"]
+
+
+def grok_topics():
+    """Ask Grok for today's 6 show-relevant topics based on the live news cycle."""
+    usr = ("Using today's biggest political news relevant to this show and audience, choose the 6 most important "
+           "topics for today's show. Return ONLY a JSON array of 6 objects with keys: id (short lowercase slug, one word), "
+           "name (display title), query (an X search query that ENDS WITH ' has:videos -is:retweet lang:en'), "
+           "summary (2 plain sentences of what's happening), angle (1 sentence: the host's take), accent (a hex color). "
+           "No prose, only the JSON array.")
+    try:
+        txt = grok_chat("You are the news producer for this show. " + VIEWS, usr, live=True)
+        txt = txt[txt.find("["):txt.rfind("]") + 1]
+        arr = json.loads(txt)
+        out = [dict(id=t["id"], name=t["name"], accent=t.get("accent", "#5aa9ff"),
+                    query=t["query"], summary=t["summary"], angle=t["angle"]) for t in arr[:6]]
+        if len(out) >= 4:
+            print(f"Grok chose {len(out)} topics: " + ", ".join(t["id"] for t in out))
+            return out
+    except Exception as e:
+        print(f"Grok topics failed ({e}); using fixed topics.", file=sys.stderr)
+    return None
+
+
+def grok_label(topic_name, clips):
+    """Relabel each clip's stance by actually reading its text, against the show's views."""
+    if not clips:
+        return
+    items = [{"i": i, "text": (c.get("text", "") or "")[:260]} for i, c in enumerate(clips)]
+    usr = ("Topic: " + topic_name + "\nFor EACH tweet below, decide the show's stance: 'for' (aligns with / helps the "
+           "show's side), 'against' (the show would rebut it), or 'neutral' (straight facts, or genuinely unclear). "
+           "Return ONLY a JSON object mapping each index (as a string) to for/against/neutral.\nTweets: " + json.dumps(items))
+    try:
+        txt = grok_chat("You classify tweets for this show. " + VIEWS, usr)
+        txt = txt[txt.find("{"):txt.rfind("}") + 1]
+        m = json.loads(txt)
+        conv = {"for": "side", "against": "rage", "neutral": "neu"}
+        for i, c in enumerate(clips):
+            s = str(m.get(str(i), "neutral")).strip().lower()
+            c["stance"] = conv.get(s, c["stance"])
+        print(f"Grok labeled '{topic_name}' ({len(clips)} clips)")
+    except Exception as e:
+        print(f"Grok label failed for '{topic_name}' ({e}); keeping heuristic labels.", file=sys.stderr)
+
+
 def api_get(query, max_results=30):
     params = {"query": query, "max_results": str(max_results),
               "sort_order": "relevancy",  # engagement-ranked, not newest-first (surfaces the viral, high-like clips)
@@ -140,11 +206,13 @@ def collect_topic(t):
         likes = (tw.get("public_metrics", {}) or {}).get("like_count", 0)
         stance, cred = classify(tw.get("text", ""), uname, t["id"])
         vids.append(dict(id=str(tw["id"]), user=u.get("username", "i"),
-                         likes=likes, stance=stance, cred=cred))
+                         likes=likes, stance=stance, cred=cred, text=tw.get("text", "")))
     vids.sort(key=lambda c: c["likes"], reverse=True)
     # hard quality bar: only thousands of likes. If too few, relax to top-by-likes so the page still fills.
     strong = [c for c in vids if c["likes"] >= LIKE_MIN]
     pool = strong if len(strong) >= 10 else vids[:PER_TOPIC + 6]
+    if GROK_KEY:
+        grok_label(t["name"], pool)   # accurate stance by reading each clip
     # balance: take up to PER_STANCE of each stance (highest-liked first), then fill by likes
     buckets = {"side": [], "rage": [], "neu": []}
     for c in pool:
@@ -189,10 +257,10 @@ def card_html(c, topic):
             f'</div>')
 
 
-def build_page(topics_data):
+def build_page(topics_data, topics):
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%b %d, %H:%M UTC")
     tabs, panels, maps = [], [], []
-    allc = [(t["id"], c) for t in TOPICS for c in topics_data.get(t["id"], [])]
+    allc = [(t["id"], c) for t in topics for c in topics_data.get(t["id"], [])]
     allc.sort(key=lambda x: x[1]["viral"], reverse=True)
     hot = ""
     for tid, c in allc[:3]:
@@ -206,7 +274,7 @@ def build_page(topics_data):
                 f'<button class="down" data-v="-1" data-id="{c["id"]}">&#128078; Not this</button></div>'
                 f'<textarea class="why" data-id="{c["id"]}" placeholder="why? (optional)"></textarea>'
                 f'<a class="openx" href="https://x.com/{c["user"]}/status/{c["id"]}" target="_blank" rel="noopener">&#9654; Watch on X &#8599;</a></div>')
-    for t in TOPICS:
+    for t in topics:
         cs = topics_data.get(t["id"], [])
         n = len(cs)
         tabs.append(f'<button class="tabbtn" data-tab="{t["id"]}" style="--accent:{t["accent"]}"><span class="dot"></span>{t["id"].capitalize()} <span class="cnt">{n}</span></button>')
@@ -348,8 +416,9 @@ def main():
     if not TOKEN:
         print("No X_BEARER_TOKEN set; aborting.", file=sys.stderr)
         sys.exit(1)
+    topics = (grok_topics() if GROK_KEY else None) or TOPICS
     topics_data, total = {}, 0
-    for t in TOPICS:
+    for t in topics:
         cs = collect_topic(t)
         topics_data[t["id"]] = cs
         total += len(cs)
@@ -359,7 +428,7 @@ def main():
         print(f"Only {total} clips (< {MIN_TOTAL_TO_PUBLISH}); leaving page untouched.", file=sys.stderr)
         sys.exit(0)
     with open("index.html", "w", encoding="utf-8") as f:
-        f.write(build_page(topics_data))
+        f.write(build_page(topics_data, topics))
     print("index.html written.")
 
 
